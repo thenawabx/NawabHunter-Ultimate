@@ -91,7 +91,7 @@ def process_recon(domain, extra_flags):
 
     # --- POINT 4: TAKEOVER CHECK ---
     run_step("POINT 4: Takeover Check", 
-             f"cat all_subs.txt | httpx -mc 404,403,500,502,503 {extra_flags} -o takeover_for_sub.txt; "
+             f"cat all_subs.txt | httpx-toolkit -mc 404,403,500,502,503 {extra_flags} -o takeover_for_sub.txt; "
              f"if [ -s takeover_for_sub.txt ]; then subzy run --targets takeover_for_sub.txt {extra_flags} | tee sub_take.txt; fi")
 
     # --- POINT 5: ARCHIVE URLS ---
