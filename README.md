@@ -33,6 +33,9 @@ sudo apt install dnsx -y
 sudo apt install httpx-toolkit -y
 ```
 ```bash
+sudo apt install subzy -y
+```
+```bash
 sudo apt install waybackurls -y
 ```
 ```bash
