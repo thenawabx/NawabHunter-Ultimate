@@ -1,0 +1,11 @@
+# Python Standard Libraries (No need to install via pip, but listed for clarity)
+# os
+# sys
+# subprocess
+# shutil
+# time
+
+# External Python Packages
+requests
+beautifulsoup4
+uro
