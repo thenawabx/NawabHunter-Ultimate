@@ -1,4 +1,4 @@
-# NOTE : Only for single wildcard.
+# NOTE : Only for wildcard Target.
 
 ## NawabHunter-Ultimate
 ​⚠️ Disclaimer: This tool is for educational purposes and authorized security testing only. The developer (thenawabx) is not responsible for any misuse or damage caused by this tool. Always obtain written permission before scanning any target.
