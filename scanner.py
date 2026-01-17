@@ -109,7 +109,7 @@ def process_recon(domain, extra_flags):
     template_path = os.path.expanduser("~/Downloads/Thenawabx_Nuclei_Templates/Templates")
     nuclei_cmd = (
         f"nuclei -l live_sub.txt -t {template_path} "
-        f"-severity low,medium,high,critical -stats -rl 6 -c 3 -debug "
+        f"-severity low,medium,high,critical -stats -rl 6 -c 3 "
         f"{extra_flags} -o nuclei_results.txt"
     )
     run_step("POINT 7: Nuclei Sniper", nuclei_cmd)
