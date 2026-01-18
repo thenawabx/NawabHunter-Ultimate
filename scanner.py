@@ -105,7 +105,6 @@ def process_recon(domain, extra_flags):
              "cat urls.txt | grep -E '.env|.log|.sql|.conf' | tee information_Disc.txt")
 
     # --- POINT 7: NUCLEI (ULTIMATE SNIPER) ---
-    # Removed -mc and kept -debug as requested
     template_path = os.path.expanduser("~/Downloads/Thenawabx_Nuclei_Templates/Templates")
     nuclei_cmd = (
         f"nuclei -l live_sub.txt -t {template_path} "
