@@ -114,6 +114,11 @@ def process_recon(domain, extra_flags):
     )
     run_step("POINT 7: Nuclei Sniper", nuclei_cmd)
 
+    # --- POINT 8: CHECK STATUS ---
+    run_step("POINT 8: Checking Status with httpx-toolkit",
+        f"grep -oP 'https?://[^ ]+' nuclei_results.txt | httpx-toolkit -sc -td -o live_status.txt"
+    )
+
     os.chdir(original_dir)
     print(f"\n{G}{B}[+] MISSION COMPLETED FOR: {domain}{W}")
 
