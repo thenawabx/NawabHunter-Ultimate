@@ -116,7 +116,7 @@ def process_recon(domain, extra_flags):
 
     # --- POINT 8: CHECK STATUS ---
     run_step("POINT 8: Checking Status with httpx-toolkit",
-        f"grep -oP 'https?://[^ ]+' nuclei_results.txt | httpx-toolkit -sc -td -o live_status.txt"
+        f"grep -oP 'https?://[^ ]+' nuclei_results.txt | httpx-toolkit -sc -td -o nuclei_status_code.txt"
     )
 
     os.chdir(original_dir)
