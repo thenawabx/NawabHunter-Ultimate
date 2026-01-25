@@ -94,15 +94,20 @@ def process_recon(domain, extra_flags):
              f"cat all_subs.txt | httpx-toolkit -mc 404,403,500,502,503 {extra_flags} -o takeover_for_sub.txt; "
              f"if [ -s takeover_for_sub.txt ]; then subzy run --targets takeover_for_sub.txt {extra_flags} | tee sub_take.txt; fi")
 
-    # --- POINT 5: ARCHIVE URLS ---
-    run_step("POINT 5: Wayback URLs", f"cat live_sub.txt | waybackurls | tee urls.txt")
+    # --- POINT 5: ARCHIVE URLs ---
+    run_step("POINT 5: Wayback URLs", f"cat live_sub.txt | waybackurls | tee wayback_urls.txt")
 
-    # --- POINT 6: DATA FILTERING ---
+    # --- POINT 5.1: ACTIVE CRAWLING ---
+    run_step("POINT 5.1: Katana Crawling", f"katana -list live_sub.txt | tee katana_urls.txt")
+
+    # --- POINT 6: URLS FILTERING ---
     run_step("POINT 6: Filtering", 
-             "cat urls.txt | grep '=' | tee Equal_parameters.txt; "
-             "cat urls.txt | grep '\\.js' | tee js_file.txt; "
-             "cat urls.txt | grep 'api' | tee api_Information.txt; "
-             "cat urls.txt | grep -E '.env|.log|.sql|.conf' | tee information_Disc.txt")
+           f"cat wayback_urls.txt katana_urls.txt | sort -u > all_urls.txt; "
+           f"cat all_urls.txt | grep '=' | tee Equal_parameters.txt; "
+           f"cat all_urls.txt | grep '\\.js' | tee js_file.txt; "
+           f"cat all_urls.txt | grep 'api' | tee api_Information.txt; "
+           f"cat all_urls.txt | grep -E '.env|.log|.sql|.conf' | tee information_Disc.txt"
+)
 
     # --- POINT 7: NUCLEI (ULTIMATE SNIPER) ---
     template_path = os.path.expanduser("~/Downloads/Thenawabx_Nuclei_Templates/Templates")
