@@ -151,7 +151,13 @@ def process_recon(domain, extra_flags):
         f"{extra_flags} -o nuclei_information_results.txt"
     )
     run_step("POINT 11: Nuclei Sniper", nuclei_cmd_11)
-
+    # --- POINT 12: NUCLEI (KATANA URLS) ---
+    nuclei_cmd_12 = (
+        f"nuclei -l katana_urls.txt -t {template_path} "
+        f"-severity low,medium,high,critical -stats -rl 6 -c 3 "
+        f"{extra_flags} -o nuclei_katana_results.txt"
+    )
+    run_step("POINT 12: Nuclei Sniper (Katana URLs)", nuclei_cmd_12)
     
     os.chdir(original_dir)
     print(f"\n{G}{B}[+] MISSION COMPLETED FOR: {domain}{W}")
