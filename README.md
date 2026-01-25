@@ -9,11 +9,11 @@ Nawab Hunter Ultimate is a powerful automated reconnaissance tool designed for c
 ​### 📥 Installation & Setup & Usage.
 Follow these steps to set up the tool on your Kali Linux or NetHunter environment:
 
-**​১. Navigate to the Downloads directory:**
+**​1. Navigate to the Downloads directory:**
 ```bash
 cd ~/Downloads
 ```
-​**২. Install required reconnaissance tools:**
+​**2. Install required reconnaissance tools:**
 ```bash
 sudo apt update
 ```
@@ -47,23 +47,20 @@ sudo apt install python3 -y
 ```bash
 sudo apt install git -y
 ```
-​**৩. Clone the custom Nuclei templates:**
-( Note: You can later move or copy your own custom templates into the Templates folder )
-```bash
-git clone https://github.com/thenawabx/Thenawabx_Nuclei_Templates.git
-```
-​**৪. Clone the core NawabHunter-Ultimate repository:**
+​**3. Clone the core NawabHunter-Ultimate repository:**
 ```bash
 git clone https://github.com/thenawabx/NawabHunter-Ultimate
 ```
-**​৫. Configure and initialize the tool:**
+**4. Now Here is an example of a custom template in the Nuclei_Templates folder. However, you can place your own nuclei templates or custom templates in the Nuclei_Templates folder by copying or moving them. Otherwise, that one template will work.
+
+**​5. Configure and initialize the tool:**
 ```bash
 cd NawabHunter-Ultimate
 chmod +x scanner.py
 python3 scanner.py
 ```
 ## ⚠️IMPORTANT: Press Ctrl + C after the banner appears to stop the script and activate the shortcut command.
-**​৬. Activate the shortcut command (Alias):**
+**​6. Activate the shortcut command (Alias):**
 ```bash
 source ~/.bashrc
 ```
