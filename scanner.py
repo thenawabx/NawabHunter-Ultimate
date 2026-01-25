@@ -92,7 +92,7 @@ def process_recon(domain, extra_flags):
     # --- POINT 4: TAKEOVER CHECK ---
     run_step("POINT 4: Takeover Check", 
              f"cat all_subs.txt | httpx-toolkit -mc 404,403,500,502,503 {extra_flags} -o takeover_for_sub.txt; "
-             f"if [ -s takeover_for_sub.txt ]; then subzy run --targets takeover_for_sub.txt {extra_flags} | tee sub_take.txt; fi")
+             f"if [ -s takeover_for_sub.txt ]; then subzy run --targets takeover_for_sub.txt {extra_flags} | tee sub_take_result.txt; fi")
 
     # --- POINT 5: ARCHIVE URLs ---
     run_step("POINT 5: Wayback URLs", f"cat live_sub.txt | waybackurls | tee wayback_urls.txt")
@@ -151,6 +151,7 @@ def process_recon(domain, extra_flags):
         f"{extra_flags} -o nuclei_information_results.txt"
     )
     run_step("POINT 11: Nuclei Sniper", nuclei_cmd_11)
+    
     # --- POINT 12: NUCLEI (KATANA URLS) ---
     nuclei_cmd_12 = (
         f"nuclei -l katana_urls.txt -t {template_path} "
@@ -158,6 +159,21 @@ def process_recon(domain, extra_flags):
         f"{extra_flags} -o nuclei_katana_results.txt"
     )
     run_step("POINT 12: Nuclei Sniper (Katana URLs)", nuclei_cmd_12)
+    
+    # --- POINT 13: FINAL RESULTS CONSOLIDATION ---
+    master_results = "FINAL_HUNTER_Nawab_Bug_RESULTS.txt"
+    
+    # Merges all nuclei results, removes duplicate lines, and saves to a master file
+    collect_cmd = (
+        f"cat nuclei_*.txt 2>/dev/null | sort -u > {master_results}; "
+        f"if [ -s {master_results} ]; then "
+        f"echo -e '\\n{G}[+] SUCCESS: Final unique findings saved to {master_results}{W}'; "
+        f"else "
+        f"echo -e '\\n{Y}[!] No unique vulnerabilities detected.{W}'; "
+        f"rm {master_results} 2>/dev/null; fi"
+    )
+    run_step("POINT 13: Final Results Consolidation", collect_cmd)
+    
     
     os.chdir(original_dir)
     print(f"\n{G}{B}[+] MISSION COMPLETED FOR: {domain}{W}")
