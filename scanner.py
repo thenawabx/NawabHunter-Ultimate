@@ -161,19 +161,15 @@ def process_recon(domain, extra_flags):
     run_step("POINT 12: Nuclei Sniper (Katana URLs)", nuclei_cmd_12)
     
     # --- POINT 13: FINAL RESULTS CONSOLIDATION ---
-    master_results = "FINAL_HUNTER_Nawab_Bug_RESULTS.txt"
-    
-    # Merges all nuclei results, removes duplicate lines, and saves to a master file
+    master_results = "FINAL_HUNTER_NAWAB_BUG_RESULTS.txt"
+
+    # 1. Access the target directory (already handled by os.chdir)
+    # 2. Collect all nuclei results, remove duplicates, and save
     collect_cmd = (
         f"cat nuclei_*.txt 2>/dev/null | sort -u > {master_results}; "
-        f"if [ -s {master_results} ]; then "
-        f"echo -e '\\n{G}[+] SUCCESS: Final unique findings saved to {master_results}{W}'; "
-        f"else "
-        f"echo -e '\\n{Y}[!] No unique vulnerabilities detected.{W}'; "
-        f"rm {master_results} 2>/dev/null; fi"
+        f"if [ ! -s {master_results} ]; then rm -f {master_results}; fi"
     )
     run_step("POINT 13: Final Results Consolidation", collect_cmd)
-    
     
     os.chdir(original_dir)
     print(f"\n{G}{B}[+] MISSION COMPLETED FOR: {domain}{W}")
