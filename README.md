@@ -51,7 +51,7 @@ sudo apt install git -y
 ```bash
 git clone https://github.com/thenawabx/NawabHunter-Ultimate
 ```
-**4. Now Here is an example of a custom template in the Nuclei_Templates folder. However, you can place your own nuclei templates or custom templates in the Nuclei_Templates folder by copying or moving them. Otherwise, that one template will work.
+**4. Now Here is an example of a custom template in the Nuclei_Templates folder. However, you can place your own nuclei templates or custom templates in the Nuclei_Templates folder by copying or moving them. Otherwise, that one template will work.**
 
 **​5. Configure and initialize the tool:**
 ```bash
