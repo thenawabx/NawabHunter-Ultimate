@@ -163,16 +163,16 @@ def process_recon(domain, extra_flags):
     # --- POINT 13: FINAL RESULTS CONSOLIDATION ---
     master_results = "FINAL_RESULT_BY_THENAWABX.txt"
 
-    # 1. Merges all nuclei results and removes duplicates
-    # 2. Checks if the master file has content and prints the status
-    collect_cmd = (
-        f"cat nuclei_*.txt 2>/dev/null | sort -u > {master_results}; "
-        f"if [ -s {master_results} ]; then "
-        f"echo -e '\\n{G}[+] VULNERABILITY DETECTED! Check: {master_results}{W}'; "
-        f"else "
-        f"echo -e '\\n{R}[!] NOT FOUND VULNERABILITY{W}'; fi"
-    )
-    run_step("POINT 13: Final Results Consolidation", collect_cmd)
+    # Step 1: Merge all results into the master file ---
+    subprocess.run(f"cat nuclei_*.txt 2>/dev/null | sort -u > {master_results}", shell=True)
+
+    # Step 2: Pure Python logic for clean reporting ---
+    print("\n" + "="*50)
+    if os.path.exists(master_results) and os.path.getsize(master_results) > 0:
+        print(f"{G}[+] VULNERABILITY DETECTED! Check: {master_results}{W}")
+    else:
+        print(f"{R}[!] NOT FOUND VULNERABILITY{W}")
+    print("="*50 + "\n")
     
     os.chdir(original_dir)
     print(f"\n{G}{B}[+] MISSION COMPLETED FOR: {domain}{W}")
