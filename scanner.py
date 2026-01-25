@@ -25,7 +25,7 @@ def banner():
     print(f"#   ╚═╝  ╚═══╝╚═╝  ╚═╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═════╝            #")
     print(f"#                                                            #")
     print(f"#           {Y}NAWAB HUNTER ULTIMATE v0.0.0{M}                 #")
-    print(f"#            {C}MODE: MASTER ELITE SNIPER{M}                   #")
+    print(f"#               {C}MODE: MASTER ELITE{M}                     #")
     print(f"##############################################################{W}\n")
 
 def setup_alias():
@@ -44,7 +44,7 @@ def setup_alias():
                 with open(path, "a") as f:
                     f.write(f"\n{alias_line}\n")
     
-    print(f"{G}[+] Welcome to 'nawab-run' tool .{W}")
+    print(f"{G}[+] Welcome to 'thenawabx' world's .{W}")
 
 def run_step(step_name, command):
     """Executes a command and maintains its original visual output."""
@@ -109,20 +109,50 @@ def process_recon(domain, extra_flags):
            f"cat all_urls.txt | grep -E '.env|.log|.sql|.conf' | tee information_Disc.txt"
 )
 
-    # --- POINT 7: NUCLEI (ULTIMATE SNIPER) ---
+    # --- NUCLEI CONFIGURATION ---
     template_path = os.path.expanduser("~/Downloads/NawabHunter-Ultimate/Nuclei_Templates")
-    nuclei_cmd = (
+    
+    # --- POINT 7: NUCLEI (LIVE SUBS) ---
+    nuclei_cmd_7 = (
         f"nuclei -l live_sub.txt -t {template_path} "
         f"-severity low,medium,high,critical -stats -rl 6 -c 3 "
-        f"{extra_flags} -o nuclei_results.txt"
+        f"{extra_flags} -o nuclei_live_results.txt"
     )
-    run_step("POINT 7: Nuclei Sniper", nuclei_cmd)
+    run_step("POINT 7: Nuclei Sniper", nuclei_cmd_7)
 
-    # --- POINT 8: CHECK STATUS ---
-    run_step("POINT 8: Checking Status with httpx-toolkit",
-        f"grep -oP 'https?://[^ ]+' nuclei_results.txt | httpx-toolkit -sc -td -o nuclei_status_code.txt"
+    # --- POINT 8: NUCLEI (EQUAL PARAMETERS) ---
+    nuclei_cmd_8 = (
+        f"nuclei -l Equal_parameters.txt -t {template_path} "
+        f"-severity low,medium,high,critical -stats -rl 6 -c 3 "
+        f"{extra_flags} -o nuclei_Equal_parameters_results.txt"
     )
+    run_step("POINT 8: Nuclei Sniper", nuclei_cmd_8)
 
+    # --- POINT 9: NUCLEI (JS FILES) ---
+    nuclei_cmd_9 = (
+        f"nuclei -l js_file.txt -t {template_path} "
+        f"-severity low,medium,high,critical -stats -rl 6 -c 3 "
+        f"{extra_flags} -o nuclei_js_results.txt"
+    )
+    run_step("POINT 9: Nuclei Sniper", nuclei_cmd_9)
+
+    # --- POINT 10: NUCLEI (API INFORMATION) ---
+    nuclei_cmd_10 = (
+        f"nuclei -l api_Information.txt -t {template_path} "
+        f"-severity low,medium,high,critical -stats -rl 6 -c 3 "
+        f"{extra_flags} -o nuclei_api_results.txt"
+    )
+    run_step("POINT 10: Nuclei Sniper", nuclei_cmd_10)
+
+    # --- POINT 11: NUCLEI (INFORMATION DISCOVERY) ---
+    nuclei_cmd_11 = (
+        f"nuclei -l information_Disc.txt -t {template_path} "
+        f"-severity low,medium,high,critical -stats -rl 6 -c 3 "
+        f"{extra_flags} -o nuclei_information_results.txt"
+    )
+    run_step("POINT 11: Nuclei Sniper", nuclei_cmd_11)
+
+    
     os.chdir(original_dir)
     print(f"\n{G}{B}[+] MISSION COMPLETED FOR: {domain}{W}")
 
