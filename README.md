@@ -39,6 +39,9 @@ sudo apt install subzy -y
 sudo apt install waybackurls -y
 ```
 ```bash
+sudo apt install katana -y
+```
+```bash
 sudo apt install python3 -y
 ```
 ```bash
