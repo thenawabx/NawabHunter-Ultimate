@@ -110,7 +110,7 @@ def process_recon(domain, extra_flags):
 )
 
     # --- POINT 7: NUCLEI (ULTIMATE SNIPER) ---
-    template_path = os.path.expanduser("~/Downloads/Thenawabx_Nuclei_Templates/Templates")
+    template_path = os.path.expanduser("~/Downloads/NawabHunter-Ultimate/Nuclei_Templates")
     nuclei_cmd = (
         f"nuclei -l live_sub.txt -t {template_path} "
         f"-severity low,medium,high,critical -stats -rl 6 -c 3 "
