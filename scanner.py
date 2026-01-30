@@ -16,16 +16,16 @@ B = "\033[1m"
 def banner():
     os.system('clear')
     print(f"{M}{B}##############################################################")
+    print(f"#                                                             #")
+    print(f"#   ███╗   ██╗ █████╗ ██╗    ██╗ █████╗ ██████╗              #")
+    print(f"#   ████╗  ██║██╔══██╗██║    ██║██╔══██╗██╔══██╗             #")
+    print(f"#   ██╔██╗ ██║███████║██║ █╗ ██║███████║██████╔╝             #")
+    print(f"#   ██║╚██╗██║██╔══██║██║███╗██║██╔══██║██╔══██╗             #")
+    print(f"#   ██║ ╚████║██║  ██║╚███╔███╔╝██║  ██║██████╔╝             #")
+    print(f"#   ╚═╝  ╚═══╝╚═╝  ╚═╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═════╝              #")
     print(f"#                                                            #")
-    print(f"#   ███╗   ██╗ █████╗ ██╗    ██╗ █████╗ ██████╗             #")
-    print(f"#   ████╗  ██║██╔══██╗██║    ██║██╔══██╗██╔══██╗            #")
-    print(f"#   ██╔██╗ ██║███████║██║ █╗ ██║███████║██████╔╝            #")
-    print(f"#   ██║╚██╗██║██╔══██║██║███╗██║██╔══██║██╔══██╗            #")
-    print(f"#   ██║ ╚████║██║  ██║╚███╔███╔╝██║  ██║██████╔╝            #")
-    print(f"#   ╚═╝  ╚═══╝╚═╝  ╚═╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═════╝             #")
-    print(f"#                                                           #")
-    print(f"#           {Y}NAWAB HUNTER ULTIMATE v0.0.0{M}                    #")
-    print(f"#               {C}MODE: MASTER ELITE{M}                          #")
+    print(f"#           {Y}NAWAB HUNTER ULTIMATE v0.0.0{M}                     #")
+    print(f"#               {C}MODE: MASTER ELITE{M}                           #")
     print(f"##############################################################{W}\n")
 
 def setup_alias():
@@ -115,7 +115,7 @@ def process_recon(domain, extra_flags):
     # --- POINT 7: NUCLEI (LIVE SUBS) ---
     nuclei_cmd_7 = (
         f"nuclei -l live_sub.txt -t {template_path} "
-        f"-severity low,medium,high,critical -stats -rl 6 -c 3 -as "
+        f"-severity low,medium,high,critical -stats -rl 6 -c 3 "
         f"{extra_flags} -o nuclei_live_results.txt"
     )
     run_step("POINT 7: Nuclei Sniper", nuclei_cmd_7)
@@ -123,7 +123,7 @@ def process_recon(domain, extra_flags):
     # --- POINT 8: NUCLEI (EQUAL PARAMETERS) ---
     nuclei_cmd_8 = (
         f"nuclei -l Equal_parameters.txt -t {template_path} "
-        f"-severity low,medium,high,critical -stats -rl 6 -c 3 -as "
+        f"-severity low,medium,high,critical -stats -rl 6 -c 3 "
         f"{extra_flags} -o nuclei_Equal_parameters_results.txt"
     )
     run_step("POINT 8: Nuclei Sniper", nuclei_cmd_8)
@@ -131,7 +131,7 @@ def process_recon(domain, extra_flags):
     # --- POINT 9: NUCLEI (JS FILES) ---
     nuclei_cmd_9 = (
         f"nuclei -l js_file.txt -t {template_path} "
-        f"-severity low,medium,high,critical -stats -rl 6 -c 3 -as "
+        f"-severity low,medium,high,critical -stats -rl 6 -c 3 "
         f"{extra_flags} -o nuclei_js_results.txt"
     )
     run_step("POINT 9: Nuclei Sniper", nuclei_cmd_9)
@@ -139,7 +139,7 @@ def process_recon(domain, extra_flags):
     # --- POINT 10: NUCLEI (API INFORMATION) ---
     nuclei_cmd_10 = (
         f"nuclei -l api_Information.txt -t {template_path} "
-        f"-severity low,medium,high,critical -stats -rl 6 -c 3 -as "
+        f"-severity low,medium,high,critical -stats -rl 6 -c 3 "
         f"{extra_flags} -o nuclei_api_results.txt"
     )
     run_step("POINT 10: Nuclei Sniper", nuclei_cmd_10)
@@ -147,7 +147,7 @@ def process_recon(domain, extra_flags):
     # --- POINT 11: NUCLEI (INFORMATION DISCOVERY) ---
     nuclei_cmd_11 = (
         f"nuclei -l information_Disc.txt -t {template_path} "
-        f"-severity low,medium,high,critical -stats -rl 6 -c 3 -as "
+        f"-severity low,medium,high,critical -stats -rl 6 -c 3 "
         f"{extra_flags} -o nuclei_information_results.txt"
     )
     run_step("POINT 11: Nuclei Sniper", nuclei_cmd_11)
@@ -155,7 +155,7 @@ def process_recon(domain, extra_flags):
     # --- POINT 12: NUCLEI (KATANA URLS) ---
     nuclei_cmd_12 = (
         f"nuclei -l katana_urls.txt -t {template_path} "
-        f"-severity low,medium,high,critical -stats -rl 6 -c 3 -as "
+        f"-severity low,medium,high,critical -stats -rl 6 -c 3 "
         f"{extra_flags} -o nuclei_katana_results.txt"
     )
     run_step("POINT 12: Nuclei Sniper (Katana URLs)", nuclei_cmd_12)
