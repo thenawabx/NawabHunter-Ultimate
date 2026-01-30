@@ -45,6 +45,9 @@ sudo apt install katana -y
 sudo apt install python3 -y
 ```
 ```bash
+sudo apt update --fix-missing && sudo apt install python3-pip -y && pip3 install uro --break-system-packages
+```
+```bash
 sudo apt install git -y
 ```
 ​**3. Clone the core NawabHunter-Ultimate repository:**
