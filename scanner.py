@@ -95,10 +95,10 @@ def process_recon(domain, extra_flags):
              f"if [ -s takeover_for_sub.txt ]; then subzy run --targets takeover_for_sub.txt {extra_flags} | tee sub_take_result.txt; fi")
 
     # --- POINT 5: ARCHIVE URLs ---
-    run_step("POINT 5: Wayback URLs", f"cat live_sub.txt | waybackurls | tee wayback_urls.txt")
+    run_step("POINT 5: Wayback URLs", f"cat live_sub.txt | waybackurls | uro | tee wayback_urls.txt")
 
     # --- POINT 5.1: ACTIVE CRAWLING ---
-    run_step("POINT 5.1: Katana Crawling", f"katana -list live_sub.txt | tee katana_urls.txt")
+    run_step("POINT 5.1: Katana Crawling", f"katana -list live_sub.txt | uro | tee katana_urls.txt")
 
     # --- POINT 6: URLS FILTERING ---
     run_step("POINT 6: Filtering", 
