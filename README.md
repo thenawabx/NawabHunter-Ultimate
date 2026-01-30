@@ -14,6 +14,7 @@ Follow these steps to set up the tool on your Kali Linux or NetHunter environmen
 cd ~/Downloads
 ```
 ​**2. Install required reconnaissance tools:**
+**Note : If a tool is not installed this way, install it manually.**
 ```bash
 sudo apt update
 ```
@@ -40,6 +41,9 @@ sudo apt install waybackurls -y
 ```
 ```bash
 sudo apt install katana -y
+```
+```bash
+sudo apt install nuclei -y
 ```
 ```bash
 sudo apt install python3 -y
