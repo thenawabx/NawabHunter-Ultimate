@@ -1,0 +1,51 @@
+id: nawab-secret-extractor
+
+info:
+  name: Nawab-Secret-Sensitive-Extractor
+  author: thenawabx
+  severity: high
+  description: |
+    Identifies valid API tokens, passwords (6+ chars), and credentials 
+    within JS, ENV, and config files using precise extraction patterns.
+  tags: nawab-elite, exposure, secrets
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/.env"
+      - "{{BaseURL}}/.git/config"
+      - "{{BaseURL}}/config.php"
+      - "{{BaseURL}}/web.config"
+      - "{{BaseURL}}/js/app.js"
+      - "{{BaseURL}}/main.js"
+      - "{{BaseURL}}/assets/index.js"
+      - "{{BaseURL}}/.aws/credentials"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: regex
+        name: "!!! [FOUND] SENSITIVE-DATA-EXPOSED !!!"
+        regex:
+          - "(?i)(api_key|password|auth_token|secret|access_key|aws_s3|db_password)"
+        part: body
+
+    extractors:
+      # Extracting passwords inside quotes that are 6+ characters long
+      - type: regex
+        name: password-extracted
+        group: 1
+        regex:
+          - '(?i)password["'']?\s*[:=]\s*["'']([a-zA-Z0-9@#$%^&*]{6,64})["'']'
+        part: body
+
+      # Extracting API tokens/Secrets inside quotes (16 to 128 characters)
+      - type: regex
+        name: token-extracted
+        group: 1
+        regex:
+          - '(?i)(?:api_key|auth_token|secret|access_key)["'']?\s*[:=]\s*["'']([a-zA-Z0-9_\-]{16,128})["'']'
+        part: body
