@@ -43,5 +43,6 @@ http:
       - type: regex
         name: "!!! [FOUND] XSS-VULNERABLE: ENCODED-REFLECTED !!!"
         regex:
-          - "(?i)(j%0Avascript:alert)"
+          - "(?i)j[\\s\\n]*avascript:alert"
         part: body
+
