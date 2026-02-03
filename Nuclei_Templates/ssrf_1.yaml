@@ -1,4 +1,4 @@
-id: nawab-confirmed-ssrf-strict
+id: Nawab_Ssrf
 
 info:
   name: 🛸 Nawab-SSRF-Strict 🛸
@@ -40,3 +40,11 @@ http:
           - "Just a moment"
           - "Access Denied"
           - "DDoS protection"
+
+    extractors:
+      - type: regex
+        name: FOUND_AWS_INSTANCE_ID
+        part: body
+        regex:
+          - "i-[a-f0-9]{17}"
+          - "i-[a-f0-9]{8}"
