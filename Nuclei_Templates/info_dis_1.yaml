@@ -1,4 +1,4 @@
-id: nawab-info-extractor
+id: Nawab_info
 
 info:
   name: ⚡ Nawab-Information-Extractor ⚡
@@ -25,12 +25,20 @@ http:
 
     extractors:
       - type: regex
-        name: found
+        name: Found-Google-Api
         part: body
-        group: 0
         regex:
-          - "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
           - "AIzaSy[A-Za-z0-9_-]{35}"
+
+      - type: regex
+        name: Found-Secret
+        part: body
+        regex:
           - "(?i)(password|pwd|secret|db_pass)\\s*[:=]\\s*['\"]([A-Za-z0-9@#$%^&*]{6,100})['\"]"
           - "(?i)(api_key|token|auth_token|jwt_secret|access_key)\\s*[:=]\\s*['\"]?[A-Za-z0-9-_]{20,}"
+
+      - type: regex
+        name: Found_Firebase
+        part: body
+        regex:
           - "https://[a-z0-9.-]+\\.firebaseio\\.com"
