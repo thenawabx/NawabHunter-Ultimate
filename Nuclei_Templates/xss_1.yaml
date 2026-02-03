@@ -1,4 +1,4 @@
-id: nawab_xss
+id: Nawab_Xss
 
 info:
   name: ⚡ Nawab-Confirmed-XSS ⚡
@@ -48,3 +48,4 @@ http:
           - "<body/onpageshow=alert?.(1)>"
           - "<iframe/srcdoc=\"<svg/onload=confirm(1)>\">"
           - "<script>alert(1)</script>"
+
