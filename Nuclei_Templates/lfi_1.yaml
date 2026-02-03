@@ -1,4 +1,4 @@
-id: nawab-confirmed-lfi
+id: Nawab_Lfi
 
 info:
   name: 📂 Nawab-Confirmed-LFI 📂
@@ -37,3 +37,4 @@ http:
         part: body
         regex:
           - "root:x:0:0:[^:]+:[^:]+:[^:]+"
+
