@@ -106,7 +106,7 @@ def process_recon(domain, extra_flags):
            f"cat all_urls.txt | grep '=' | tee Equal_parameters.txt; "
            f"cat all_urls.txt | grep '\\.js' | tee js_file.txt; "
            f"cat all_urls.txt | grep 'api' | tee api_Information.txt; "
-           f"cat all_urls.txt | grep 'robots.txt' | tee robots_files.txt; "
+           f"cat all_urls.txt | grep 'robots.txt' | httpx-toolkit -mc 200 -o robots_files.txt; "
            f"cat all_urls.txt | grep -E '.env|.log|.sql|.conf' | tee information_Disc.txt"
 )
 
