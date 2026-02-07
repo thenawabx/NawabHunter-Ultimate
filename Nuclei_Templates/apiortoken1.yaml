@@ -1,0 +1,29 @@
+id: THENAWABX_FOUND_API_OR_TOKEN
+
+info:
+  name: High Precision Sensitive Data Hunter
+  author: thenawabx
+  severity: critical
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+
+    extractors:
+      - type: regex
+        part: body
+        regex:
+          - 'AIza[0-9A-Za-z\-_]{35}'
+          - 'ey[a-zA-Z0-9]{20,}\.ey[a-zA-Z0-9]{20,}\.[a-zA-Z0-9-_]{20,}'
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: regex
+        part: body
+        regex:
+          - 'AIza[0-9A-Za-z\-_]{35}'
+          - 'ey[a-zA-Z0-9]{20,}\.ey[a-zA-Z0-9]{20,}'
