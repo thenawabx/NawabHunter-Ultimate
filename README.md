@@ -157,11 +157,13 @@ python3 ~/Downloads/NawabHunter-Ultimate/autotor.py
 ```
 **4. Apply Changes**
 **​To make the shortcut work globally, refresh your shell configuration:**
-**For Zsh (Default in Kali)**
+
+**For Zsh**
 ```bash
 source ~/.zshrc
 ```
 **OR**
+
 **For Bash**
 ```bash
 source ~/.bashrc
