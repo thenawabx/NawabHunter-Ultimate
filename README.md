@@ -1,4 +1,4 @@
-# NOTE : Only for wildcard(web) Target.
+# NOTE : Automation recon scritp Only for wildcard(web) Target.
 
 ## NawabHunter-Ultimate
 ​⚠️ Disclaimer: This tool is for educational purposes and authorized security testing only. The developer (thenawabx) is not responsible for any misuse or damage caused by this tool. Always obtain written permission before scanning any target.
@@ -83,3 +83,87 @@ nawab-run
 **2. ​Smart Skipping: Press Ctrl + C during any step to skip that specific tool and immediately move to the next point without stopping the entire process.**
 **3. ​Organized Storage: Automatically creates a results folder named recon_target_com for every scan.**
 ​**4. Global Access: The nawab-run command works system-wide after the initial configuration.**
+
+
+# NOTE: TorNet Automation - NawabHunter Ultimate
+
+This script automates the process of changing your IP address every 3 seconds using **TorNet** on Kali Linux. It automatically configures your environment and sets up a global alias for easy access from any directory.
+
+---
+
+## 📋 Prerequisites
+* Kali Linux 2026 or later.
+* Python 3 and Pip installed.
+* Active internet connection.
+
+---
+
+## 📥 Installation & Setup
+
+Follow these steps to install and configure the automation tool:
+
+**1. Navigate to the Directory**
+**First, move to your Downloads folder:**
+```bash
+cd ~/Downloads
+```
+**2. Install Required Tools**
+**​Install and start the Tor service, and set up the environment:**
+
+```bash
+sudo apt install tor -y
+```
+```bash
+
+sudo systemctl start tor
+```
+```bash
+sudo systemctl status tor
+```
+```bash
+sudo apt install python3-pip -y
+```
+
+```bash
+python3 -m venv ~/Downloads/NawabHunter-Ultimate/my_venv
+```
+```bash
+source ~/Downloads/NawabHunter-Ultimate/my_venv/bin/activate
+```
+```bash
+pip install tornet
+```
+**3. Run Automation Script**
+**​Grant permission and execute the Python script to set up the global alias:**
+```bash
+chmod +x ~/Downloads/NawabHunter-Ultimate/autotor.py
+```
+```bash
+python3 ~/Downloads/NawabHunter-Ultimate/autotor.py
+```
+**4. Apply Changes**
+**​To make the shortcut work globally, refresh your shell configuration:**
+**For Zsh (Default in Kali)**
+```bash
+source ~/.zshrc
+```
+**OR**
+**For Bash**
+```bash
+source ~/.bashrc
+```
+### 🚀 Usage
+**​Once the setup is complete, you can start the automatic IP changer from any terminal window by typing:**
+```bash
+start-tor
+```
+​### ⚙️ Browser Configuration
+​To route your traffic through Tor, configure your browser (e.g., Firefox):
+​Go to Settings > Network Settings.
+​Select Manual Proxy Configuration.
+​SOCKS Host: 127.0.0.1 | Port: 9050.
+​Check the box: "Proxy DNS when using SOCKS v5".
+​⚠️ Important Note
+​Educational Purpose Only: This tool is created for ethical hacking and penetration testing purposes. Misusing it for illegal activities is strictly prohibited.
+
+
