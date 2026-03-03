@@ -24,7 +24,7 @@ def banner():
     print(f"#   ██║ ╚████║██║  ██║╚███╔███╔╝██║  ██║██████╔╝             #")
     print(f"#   ╚═╝  ╚═══╝╚═╝  ╚═╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═════╝              #")
     print(f"#                                                            #")
-    print(f"#           {Y}NAWAB HUNTER SINGLE v0.0.0{M}                       #")
+    print(f"#           {Y}NAWAB HUNTER MULTI-SINGLE v0.0.0{M}                 #")
     print(f"#               {C}MODE: MASTER ELITE{M}                           #")
     print(f"##############################################################{W}\n")
 
@@ -39,12 +39,11 @@ def setup_alias():
         if os.path.exists(path):
             with open(path, "r") as f:
                 content = f.read()
-            # Clean old aliases and add the new one
             if "alias nawab-run2=" not in content:
                 with open(path, "a") as f:
                     f.write(f"\n{alias_line}\n")
     
-    print(f"{G}[+] Welcome to 'thenawabx' world's (Single Mode).{W}")
+    print(f"{G}[+] Welcome to 'thenawabx' world's (Multi-Single Mode).{W}")
 
 def run_step(step_name, command):
     """Executes a command and maintains its original visual output."""
@@ -59,8 +58,8 @@ def run_step(step_name, command):
         print(f"{R}[!] Error in {step_name}: {e}{W}")
 
 def process_recon(domain, extra_flags):
-    # Folder naming: single_domain_com
-    folder_name = f"single_{domain.replace('.', '_')}"
+    # Folder naming with recon_
+    folder_name = f"recon_{domain.replace('.', '_')}"
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
 
@@ -72,60 +71,37 @@ def process_recon(domain, extra_flags):
     print(f"{Y}>>> FOLDER: {abs_path}/ <<<{W}")
     print(f"{Y}>>> PRESS Ctrl+C TO SKIP ANY STEP <<<{W}\n")
 
-    # --- POINT 1 & 2: DIRECT PROBING (Skipping Sub-enumeration) ---
-    run_step("POINT 1 & 2: Resolve Target", 
-             f"echo {domain} | dnsx {extra_flags} -o dnsx_resolved.txt")
+    # --- ENUMERATION & PROBING ---
+    run_step("POINT 1: Live Probing", f"echo {domain} | httpx-toolkit {extra_flags} -o live_target.txt")
+    run_step("POINT 2: Wayback URLs", f"echo {domain} | waybackurls | tee wayback_urls.txt")
+    run_step("POINT 3: Katana Crawling", f"katana -u {domain} -d 5 | tee katana_urls.txt")
 
-    # --- POINT 3: LIVE PROBING ---
-    run_step("POINT 3: Live Probing", f"cat dnsx_resolved.txt | httpx-toolkit {extra_flags} -o live_sub.txt")
-
-    # --- POINT 5: ARCHIVE URLs ---
-    run_step("POINT 5: Wayback URLs", f"cat live_sub.txt | waybackurls | tee wayback_urls.txt")
-
-    # --- POINT 5.1: ACTIVE CRAWLING ---
-    run_step("POINT 5.1: Katana Crawling", f"katana -list live_sub.txt | tee katana_urls.txt")
-
-    # --- POINT 6: URLS FILTERING ---
-    run_step("POINT 6: Filtering", 
+    # --- URLS FILTERING ---
+    run_step("POINT 4: Filtering", 
            f"cat wayback_urls.txt katana_urls.txt | sort -u | uro | tee all_urls.txt; "
            f"cat all_urls.txt | grep '=' | tee Equal_parameters.txt; "
            f"cat all_urls.txt | grep '\\.js' | tee js_file.txt; "
            f"cat all_urls.txt | grep 'api' | tee api_Information.txt; "
            f"cat all_urls.txt | grep 'robots.txt' | httpx-toolkit -mc 200 -o robots_files.txt; "
            f"cat all_urls.txt | grep -E '.env|.log|.sql|.conf' | tee information_Disc.txt"
-)
+    )
 
     # --- NUCLEI CONFIGURATION ---
     template_path = os.path.expanduser("~/Downloads/NawabHunter-Ultimate/Nuclei_Templates")
     
-    # --- POINT 7: NUCLEI (LIVE SUBS) ---
-    run_step("POINT 7: Nuclei Sniper", 
-             f"nuclei -l live_sub.txt -t {template_path} -fuzz -severity low,medium,high,critical -stats -rl 6 -c 3 {extra_flags} -o nuclei_live_results.txt")
-
-    # --- POINT 8: NUCLEI (EQUAL PARAMETERS) ---
-    run_step("POINT 8: Nuclei Sniper", 
-             f"nuclei -l Equal_parameters.txt -t {template_path} -fuzz -severity low,medium,high,critical -stats -rl 6 -c 3 {extra_flags} -o nuclei_Equal_parameters_results.txt")
-
-    # --- POINT 9: NUCLEI (JS FILES) ---
-    run_step("POINT 9: Nuclei Sniper", 
-             f"nuclei -l js_file.txt -t {template_path} -severity low,medium,high,critical -stats -rl 6 -c 3 {extra_flags} -o nuclei_js_results.txt")
-
-    # --- POINT 10: NUCLEI (API INFORMATION) ---
-    run_step("POINT 10: Nuclei Sniper", 
-             f"nuclei -l api_Information.txt -t {template_path} -severity low,medium,high,critical -stats -rl 6 -c 3 {extra_flags} -o nuclei_api_results.txt")
-
-    # --- POINT 11: NUCLEI (INFORMATION DISCOVERY) ---
-    run_step("POINT 11: Nuclei Sniper", 
-             f"nuclei -l information_Disc.txt -t {template_path} -severity low,medium,high,critical -stats -rl 6 -c 3 {extra_flags} -o nuclei_information_results.txt")
+    # Nuclei Steps
+    run_step("POINT 5: Nuclei Sniper (Live Target)", f"nuclei -l live_target.txt -t {template_path} -fuzz -severity low,medium,high,critical -stats -rl 6 -c 3 {extra_flags} -o nuclei_live_results.txt")
+    run_step("POINT 6: Nuclei Sniper (Parameters)", f"if [ -s Equal_parameters.txt ]; then nuclei -l Equal_parameters.txt -t {template_path} -fuzz -severity low,medium,high,critical -stats -rl 6 -c 3 {extra_flags} -o nuclei_Equal_parameters_results.txt; fi")
+    run_step("POINT 7: Nuclei Sniper (JS Files)", f"if [ -s js_file.txt ]; then nuclei -l js_file.txt -t {template_path} -severity low,medium,high,critical -stats -rl 6 -c 3 {extra_flags} -o nuclei_js_results.txt; fi")
+    run_step("POINT 8: Nuclei Sniper (API)", f"if [ -s api_Information.txt ]; then nuclei -l api_Information.txt -t {template_path} -severity low,medium,high,critical -stats -rl 6 -c 3 {extra_flags} -o nuclei_api_results.txt; fi")
+    run_step("POINT 9: Nuclei Sniper (Info Discovery)", f"if [ -s information_Disc.txt ]; then nuclei -l information_Disc.txt -t {template_path} -severity low,medium,high,critical -stats -rl 6 -c 3 {extra_flags} -o nuclei_information_results.txt; fi")
+    run_step("POINT 10: Nuclei Sniper (Katana URLs)", f"if [ -s katana_urls.txt ]; then nuclei -l katana_urls.txt -t {template_path} -fuzz -severity low,medium,high,critical -stats -rl 6 -c 3 {extra_flags} -o nuclei_katana_results.txt; fi")
     
-    # --- POINT 12: NUCLEI (KATANA URLS) ---
-    run_step("POINT 12: Nuclei Sniper (Katana URLs)", 
-             f"nuclei -l katana_urls.txt -t {template_path} -fuzz -severity low,medium,high,critical -stats -rl 6 -c 3 {extra_flags} -o nuclei_katana_results.txt")
-    
-    # --- POINT 13: FINAL RESULTS CONSOLIDATION ---
+    # --- FINAL RESULTS CONSOLIDATION ---
     master_results = "FINAL_RESULT_BY_THENAWABX.txt"
     subprocess.run(f"cat nuclei_*.txt 2>/dev/null | sort -u > {master_results}", shell=True)
 
+    # --- OUTPUT LOGIC (SAME AS ORIGINAL) ---
     print("\n" + "="*50)
     if os.path.exists(master_results) and os.path.getsize(master_results) > 0:
         print(f"{G}[+] VULNERABILITY DETECTED! Check: {master_results}{W}")
@@ -142,11 +118,16 @@ def main():
 
     extra_flags = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else ""
 
-    print(f"{Y}[?] Enter Single Target (e.g., example.com): {W}", end="")
+    print(f"{Y}[?] Enter Targets (comma separated): {W}", end="")
     try:
-        target = input().strip()
-        if target:
-            process_recon(target, extra_flags)
+        user_input = input().strip()
+        if not user_input:
+            sys.exit(0)
+        
+        targets = [t.strip() for t in user_input.split(',')]
+        for target in targets:
+            if target:
+                process_recon(target, extra_flags)
                 
     except KeyboardInterrupt:
         print(f"\n{R}[!] Nawab Hunter shut down.{W}")
