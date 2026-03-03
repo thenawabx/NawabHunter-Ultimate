@@ -1,4 +1,4 @@
-# NOTE : Automation recon scritp Only for wildcard(web) Target.
+# NOTE : Automation recon scritp Only for testing purpose.
 
 ## NawabHunter-Ultimate
 ​⚠️ Disclaimer: This tool is for educational purposes and authorized security testing only. The developer (thenawabx) is not responsible for any misuse or damage caused by this tool. Always obtain written permission before scanning any target.
