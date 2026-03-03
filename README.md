@@ -82,6 +82,7 @@ source ~/.bashrc
 
 ### 🚀 How to Use:
 **Once the setup is complete, you can launch the tool from anywhere in your terminal by simply typing the following command and entering your target:**
+
 **For Wildcard**
 ```bash
 nawab-run
