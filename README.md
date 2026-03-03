@@ -60,11 +60,19 @@ git clone https://github.com/thenawabx/NawabHunter-Ultimate
 ```
 **4. Now Here is an example of a custom template in the Nuclei_Templates folder. However, you can place your own nuclei templates or custom templates in the Nuclei_Templates folder by copying or moving them. Otherwise, that one template will work.**
 
-**​5. Configure and initialize the tool:**
+**​5.Change Directory**
 ```bash
 cd NawabHunter-Ultimate
+```
+**Configure and initialize the tool:**
+```bash
 chmod +x scanner.py
 python3 scanner.py
+```
+**Press Ctrl + C and again:**
+```bash
+chmod +x scanner2.py
+python3 scanner2.py
 ```
 ## ⚠️IMPORTANT: Press Ctrl + C after the banner appears to stop the script and activate the shortcut command.
 **​6. Activate the shortcut command (Alias):**
@@ -73,9 +81,14 @@ source ~/.bashrc
 ```
 
 ### 🚀 How to Use:
-**Once the setup is complete, you can launch the tool from anywhere in your terminal by simply typing the following command and entering your target wildcard:**
+**Once the setup is complete, you can launch the tool from anywhere in your terminal by simply typing the following command and entering your target:**
+**For Wildcard**
 ```bash
 nawab-run
+```
+**For Single Domain/Subdomain**
+```bash
+nawab-run2
 ```
 
 ### 🛠 Key Features in v0.0.0:
