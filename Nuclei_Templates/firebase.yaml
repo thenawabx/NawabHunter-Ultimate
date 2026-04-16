@@ -1,0 +1,27 @@
+id: THENAWABX_FIREBASE_DB_HUNTER
+
+info:
+  name: High Precision Firebase DB Hunter
+  author: thenawabx
+  severity: critical
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+
+    extractors:
+      - type: regex
+        part: body
+        regex:
+          - '[a-z0-9.-]+\.firebaseio\.com'
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: regex
+        part: body
+        regex:
+          - '[a-z0-9.-]+\.firebaseio\.com'

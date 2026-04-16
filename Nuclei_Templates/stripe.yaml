@@ -1,0 +1,27 @@
+id: THENAWABX_STRIPE_KEY_HUNTER
+
+info:
+  name: High Precision Stripe Key Hunter
+  author: thenawabx
+  severity: critical
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+
+    extractors:
+      - type: regex
+        part: body
+        regex:
+          - 'sk_live_[0-9a-zA-Z]{24}'
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: regex
+        part: body
+        regex:
+          - 'sk_live_[0-9a-zA-Z]{24}'

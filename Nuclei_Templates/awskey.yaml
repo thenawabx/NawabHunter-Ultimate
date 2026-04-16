@@ -1,0 +1,27 @@
+id: THENAWABX_AWS_KEY_HUNTER
+
+info:
+  name: High Precision AWS Key Hunter
+  author: thenawabx
+  severity: critical
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+
+    extractors:
+      - type: regex
+        part: body
+        regex:
+          - 'AKIA[0-9A-Z]{16}'
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: regex
+        part: body
+        regex:
+          - 'AKIA[0-9A-Z]{16}'
