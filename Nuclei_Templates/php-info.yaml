@@ -1,0 +1,25 @@
+Id: THENAWABX_PHP_INFO_HUNTER
+info:
+  name: 📑 Nawab-PHP-Info-Hunter 📑
+  author: thenawabx
+  severity: low
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/phpinfo.php"
+      - "{{BaseURL}}/info.php"
+      - "{{BaseURL}}/test.php"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        part: body
+        words:
+          - "PHP Version"
+          - "Configuration File (php.ini) Path"
+          - "PHP Development Team"
+        condition: and
