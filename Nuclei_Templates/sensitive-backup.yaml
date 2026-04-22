@@ -1,0 +1,24 @@
+Id: THENAWABX_SENSITIVE_BACKUP_HUNTER
+info:
+  name: 📑 Nawab-Sensitive-Backup-Hunter 📑
+  author: thenawabx
+  severity: high
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/config.php.bak"
+      - "{{BaseURL}}/config.save"
+      - "{{BaseURL}}/.env.old"
+      - "{{BaseURL}}/backup.sql"
+      - "{{BaseURL}}/.db_backup"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: regex
+        part: body
+        regex:
+          - "(?i)(DB_PASSWORD|MYSQL_ROOT_PASSWORD|AUTH_TOKEN|SECRET_KEY)"
