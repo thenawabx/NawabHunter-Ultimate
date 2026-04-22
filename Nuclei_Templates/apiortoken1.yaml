@@ -1,7 +1,6 @@
-id: THENAWABX_FOUND_API_OR_TOKEN
-
+Id: THENAWABX_FOUND_API_OR_TOKEN
 info:
-  name: High Precision Sensitive Data Hunter
+  name: 📑 Nawab-Sensitive-Token-Hunter 📑
   author: thenawabx
   severity: critical
 
@@ -14,8 +13,8 @@ http:
       - type: regex
         part: body
         regex:
-          - 'AIza[0-9A-Za-z\-_]{35}'
-          - 'ey[a-zA-Z0-9]{20,}\.ey[a-zA-Z0-9]{20,}\.[a-zA-Z0-9-_]{20,}'
+          - "AIzaSy[A-Za-z0-9_-]{35}"
+          - "ey[a-zA-Z0-9_-]{10,}\\.ey[a-zA-Z0-9_-]{10,}\\.[a-zA-Z0-9_-]{10,}"
 
     matchers-condition: and
     matchers:
@@ -25,5 +24,6 @@ http:
       - type: regex
         part: body
         regex:
-          - 'AIza[0-9A-Za-z\-_]{35}'
-          - 'ey[a-zA-Z0-9]{20,}\.ey[a-zA-Z0-9]{20,}'
+          - "AIzaSy[A-Za-z0-9_-]{35}"
+          - "ey[a-zA-Z0-9_-]{10,}\\.ey[a-zA-Z0-9_-]{10,}"
+        condition: or
