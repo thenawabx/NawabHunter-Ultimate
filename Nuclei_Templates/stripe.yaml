@@ -1,7 +1,6 @@
-id: THENAWABX_STRIPE_KEY_HUNTER
-
+Id: THENAWABX_STRIPE_KEY_HUNTER
 info:
-  name: High Precision Stripe Key Hunter
+  name: 📑 Nawab-Stripe-Key-Hunter 📑
   author: thenawabx
   severity: critical
 
@@ -14,7 +13,8 @@ http:
       - type: regex
         part: body
         regex:
-          - 'sk_live_[0-9a-zA-Z]{24}'
+          - "sk_live_[0-9a-zA-Z]{24,}"
+          - "pk_live_[0-9a-zA-Z]{24,}"
 
     matchers-condition: and
     matchers:
@@ -24,4 +24,6 @@ http:
       - type: regex
         part: body
         regex:
-          - 'sk_live_[0-9a-zA-Z]{24}'
+          - "sk_live_[0-9a-zA-Z]{24,}"
+          - "pk_live_[0-9a-zA-Z]{24,}"
+        condition: or
