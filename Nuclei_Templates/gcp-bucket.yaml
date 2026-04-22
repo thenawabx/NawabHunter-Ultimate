@@ -1,0 +1,18 @@
+Id: THENAWABX_GCP_BUCKET_HUNTER
+info:
+  name: 📑 Nawab-GCP-Bucket-Hunter 📑
+  author: thenawabx
+  severity: medium
+
+http:
+  - method: GET
+    path:
+      - "https://www.googleapis.com/storage/v1/b/{{Host}}?key=AIzaSyA..." # Placeholder for testing
+
+    matchers-condition: or
+    matchers:
+      - type: word
+        part: body
+        words:
+          - "\"kind\": \"storage#bucket\""
+          - "GoogleSecurityCanvas"
