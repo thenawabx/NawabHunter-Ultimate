@@ -1,0 +1,29 @@
+Id: THENAWABX_GIT_CONFIG_HUNTER
+info:
+  name: 📑 Nawab-Git-Config-Hunter 📑
+  author: thenawabx
+  severity: high
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/.git/config"
+
+    extractors:
+      - type: regex
+        part: body
+        regex:
+          - "repositoryformatversion"
+          - "url = .*\\.git"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        part: body
+        words:
+          - "repositoryformatversion"
+          - "[remote \"origin\"]"
+        condition: and
