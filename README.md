@@ -28,6 +28,12 @@ sudo apt install assetfinder -y
 sudo apt install sublist3r -y
 ```
 ```bash
+sudo apt install amass -y
+```
+```bash
+sudo apt install findomain -y
+```
+```bash
 sudo apt install dnsx -y
 ```
 ```bash
@@ -37,7 +43,19 @@ sudo apt install httpx-toolkit -y
 sudo apt install subzy -y
 ```
 ```bash
+sudo apt install ffuf -y
+```
+```bash
+sudo apt install naabu -y
+```
+```bash
 sudo apt install waybackurls -y
+```
+```bash
+sudo apt install gau -y
+```
+```bash
+sudo apt install ParamSpider -y
 ```
 ```bash
 sudo apt install katana -y
