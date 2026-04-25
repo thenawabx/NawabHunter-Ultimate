@@ -97,7 +97,7 @@ def process_recon(target, flags):
     for label, src, out, fuzz in tasks:
         if os.path.exists(src) and os.path.getsize(src) > 0:
             f_opt = "-fuzz" if fuzz else ""
-            run_step(label, f"{nuclei_base} -l {src} {f_opt} -severity low,medium,high,critical -o {out}")
+            run_step(label, f"{nuclei_base} -l {src} {f_opt} -o {out}")
 
     # --- FINAL RESULTS ---
     master = "FINAL_REPORT_SINGLE.txt"
