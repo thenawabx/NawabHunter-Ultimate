@@ -5,13 +5,7 @@ import shutil
 import time
 
 # --- UI COLORS ---
-G = "\033[92m" 
-Y = "\033[93m" 
-C = "\033[96m" 
-M = "\033[95m" 
-W = "\033[0m"  
-R = "\033[91m" 
-B = "\033[1m"
+G, Y, C, M, W, R, B = "\033[92m", "\033[93m", "\033[96m", "\033[95m", "\033[0m", "\033[91m", "\033[1m"
 
 def banner():
     os.system('clear')
@@ -27,180 +21,131 @@ def banner():
     print(f"#           {Y}NAWAB HUNTER ULTIMATE v0.0.0{M}                     #")
     print(f"#               {C}MODE: MASTER ELITE{M}                           #")
     print(f"##############################################################{W}\n")
+    print(f"{G}{B}          --- Welcome to thenawabx world ---{W}")
+    print(f"{R}{B}          >>> PRESS Ctrl+C TO SKIP ANY STEP <<<{W}\n")
 
-def setup_alias():
-    script_path = os.path.abspath(__file__)
-    home = os.path.expanduser("~")
-    alias_line = f"alias nawab-run='python3 {script_path}'"
-    for rc_file in [".bashrc", ".zshrc"]:
-        path = os.path.join(home, rc_file)
-        if os.path.exists(path):
-            with open(path, "r") as f:
-                content = f.read()
-            if "alias nawab-run=" not in content:
-                with open(path, "a") as f:
-                    f.write(f"\n{alias_line}\n")
-    print(f"{G}[+] Welcome to 'thenawabx' world.{W}")
-
-def run_step(step_name, command):
-    print(f"\n{B}{M}[{step_name}] Starting...{W}")
-    print(f"{C}[RUNNING]: {W}{command}")
-    try:
-        subprocess.run(command, shell=True)
-    except KeyboardInterrupt:
-        print(f"\n{R}[!] {step_name} skipped by user (Ctrl+C). Moving forward...{W}")
+def check_dependencies():
+    tools = ["subfinder", "assetfinder", "sublist3r", "dnsx", "httpx-toolkit", "subzy", "katana", "waybackurls", "naabu", "uro", "nuclei", "ffuf"]
+    missing = [t for t in tools if shutil.which(t) is None]
+    if missing:
+        print(f"{R}[!] Missing tools: {', '.join(missing)}{W}")
         time.sleep(1)
+
+def run_step(name, cmd):
+    print(f"{B}{C}┌──[{W}{M}{name}{W}{B}{C}] Execution started...{W}")
+    print(f"{B}{C}└─╼ {W}{Y}[ {cmd} ]{W}")
+    try:
+        subprocess.run(cmd, shell=True)
+        print(f"\n{G}[✔] {name} DONE!{W}\n")
+    except KeyboardInterrupt:
+        print(f"\n{R}[!] Skipped by User.{W}\n")
     except Exception as e:
-        print(f"{R}[!] Error in {step_name}: {e}{W}")
+        print(f"\n{R}[!] Error: {e}{W}\n")
 
-def process_recon(domain, extra_flags):
-    folder_name = f"recon_{domain.replace('.', '_')}"
-    if not os.path.exists(folder_name):
-        os.makedirs(folder_name)
+def print_section(title):
+    styled_title = f"<< {title} >>"
+    print(f"\n{G}{B}{styled_title.center(60)}{W}\n")
 
-    abs_path = os.path.abspath(folder_name)
-    original_dir = os.getcwd()
+def process_recon(target, flags):
+    base = f"recon_{target.replace('.', '_')}"
+    dirs = ["subdomains", "urls", "vulnerability", "ports_fuzz"]
+    for d in dirs:
+        path = os.path.join(base, d)
+        if not os.path.exists(path): os.makedirs(path)
+
+    abs_path = os.path.abspath(base)
+    orig_dir = os.getcwd()
     os.chdir(abs_path)
 
-    print(f"\n{G}{B}>>> TARGET: {domain} <<<{W}")
-    print(f"{Y}>>> FOLDER: {abs_path}/ <<<{W}\n")
+    print(f"\n{Y}{B}>>> STARTING MISSION: {target} <<<{W}\n")
 
-    # --- POINT 1: ENUMERATION (Corrected Syntax) ---
-    run_step("POINT 1: Subdomain Enumeration", 
-             f"subfinder -d {domain} {extra_flags} -o subfinder.txt; "
-             f"assetfinder --subs-only {domain} | tee assetfinder.txt; "
-             f"sublist3r -d {domain} -o sublist3r.txt; "
-             f"findomain -t {domain} -u findomain.txt; "
-             f"amass enum -passive -d {domain} -o amass.txt")
+    # --- 1. Recon ---
+    print_section("1 Recon")
+    run_step("1.1 subfinder", f"subfinder -d {target} -rl 10 {flags} -o subdomains/subfinder.txt")
+    run_step("1.2 assetfinder", f"assetfinder --subs-only {target} | tee subdomains/assetfinder.txt")
+    run_step("1.3 sublist3r", f"sublist3r -d {target} -o subdomains/sublist3r.txt")
 
-    # --- POINT 2: MERGE & RESOLVE (Corrected Merge List) ---
-    run_step("POINT 2: Merge & Resolve", 
-             f"cat subfinder.txt assetfinder.txt sublist3r.txt findomain.txt amass.txt 2>/dev/null | sort -u > all_subs.txt; "
-             f"dnsx -l all_subs.txt {extra_flags} -o dnsx_resolved.txt")
+    # --- 2. Merging ---
+    print_section("2 Merging All Subdomains")
+    run_step("2.1 Merging", f"cat subdomains/*.txt 2>/dev/null | sort -u > subdomains/all_subs.txt")
 
-    # --- POINT 3: LIVE PROBING ---
-    run_step("POINT 3: Live Probing", f"cat dnsx_resolved.txt | httpx-toolkit {extra_flags} -o live_sub.txt")
+    # --- 3. Live Checkup ---
+    print_section("3 Live Checkup")
+    run_step("3.1 Dnsx", f"dnsx -l subdomains/all_subs.txt -rl 50 {flags} -o subdomains/dnsx_resolved.txt")
+    run_step("3.2 httpx-toolkit", f"cat subdomains/dnsx_resolved.txt | httpx-toolkit -rl 20 {flags} -o subdomains/live_sub.txt")
 
-    # --- POINT 4: TAKEOVER CHECK ---
-    run_step("POINT 4: Takeover Check", 
-             f"cat all_subs.txt | httpx-toolkit -mc 404,403,500,502,503 {extra_flags} -o takeover_for_sub.txt; "
-             f"if [ -s takeover_for_sub.txt ]; then subzy run --targets takeover_for_sub.txt {extra_flags} | tee sub_take_result.txt; fi")
+    # --- 4. Takeover Check ---
+    print_section("4 Takeover Check")
+    run_step("4.1 code cheaker", f"cat subdomains/all_subs.txt | httpx-toolkit -mc 404,403,500,502,503 -rl 10 {flags} -o vulnerability/takeover_probe.txt")
+    run_step("4.2 subzy", f"if [ -s vulnerability/takeover_probe.txt ]; then subzy run --targets vulnerability/takeover_probe.txt {flags} | tee vulnerability/sub_take_result.txt; fi")
 
-    # --- POINT 5: ARCHIVE & URL DISCOVERY ---
-    run_step("POINT 5: URL Discovery", 
-             f"cat live_sub.txt | waybackurls | tee wayback_urls.txt; "
-             f"gau {domain} --threads 10 | tee gau_urls.txt")
+    # --- 5. URL Collection ---
+    print_section("5 Urls Collecting")
+    run_step("5.1 katana crawling", f"katana -list subdomains/live_sub.txt -rl 10 | tee urls/katana_urls.txt")
+    run_step("5.2 waybackurls", f"cat subdomains/live_sub.txt | waybackurls | tee urls/wayback_urls.txt")
 
-    run_step("POINT 5.1: Katana Crawling", f"katana -list live_sub.txt | tee katana_urls.txt")
-    run_step("POINT 5.3: ParamSpider", f"paramspider -d {domain} -o param_urls.txt")
-    run_step("POINT 5.4: Naabu Port Scan", f"naabu -host {domain} -top-ports 1000 -o open_ports.txt")
+    # --- 6. Scanning & Fuzzing ---
+    print_section("6 Ports Scanning & Fuzzing")
+    run_step("6.1 Naabu", f"naabu -host {target} -top-ports 100 -rate 500 -o ports_fuzz/open_ports.txt")
+    wordlist = "/usr/share/dict/wordlist-probable.txt"
+    if os.path.exists(wordlist):
+        run_step("6.2 FFUF Fuzzing", f"ffuf -w {wordlist} -u https://{target}/FUZZ -mc 200,301,302,403 -t 10 -r -o ports_fuzz/ffuf_results.txt -or")
 
-    # --- POINT 5.5: DIRECTORY FUZZING ---
-    wordlist_path = "/usr/share/wordlists/dirb/common.txt"
-    if os.path.exists(wordlist_path):
-        run_step("POINT 5.6: FFUF Fuzzing", 
-                 f"ffuf -w {wordlist_path} -u https://{domain}/FUZZ -mc 200,301 -t 20 -o fuzz_results.txt")
-    else:
-        print(f"{Y}[!] Skipping FFUF: Wordlist not found.{W}")
-
-    # --- POINT 6: URLS FILTERING ---
-    run_step("POINT 6: Filtering", 
-           f"cat wayback_urls.txt katana_urls.txt gau_urls.txt | sort -u | uro | tee all_urls.txt; "
-           f"cat all_urls.txt | grep '=' | tee Equal_parameters.txt; "
-           f"cat all_urls.txt | grep '\\.js' | tee js_file.txt; "
-           f"cat all_urls.txt | grep 'api' | tee api_Information.txt; "
-           f"cat all_urls.txt | grep -E '.env|.log|.sql|.conf' | tee information_Disc.txt")
-
-    # --- NUCLEI CONFIGURATION ---
-    template_path = os.path.expanduser("~/Downloads/NawabHunter-Ultimate/Nuclei_Templates")
-    
-    # --- POINT 7: NUCLEI (LIVE SUBS) ---
-    nuclei_cmd_7 = (
-        f"nuclei -l live_sub.txt -t {template_path} "
-        f"-fuzz -severity low,medium,high,critical -stats -rl 6 -c 3 "
-        f"{extra_flags} -o nuclei_live_results.txt"
+    # --- 7. Uro Filtering & Sorting ---
+    print_section("7 Uro Filtering & Sorting")
+    filter_cmd = (
+        f"cat urls/wayback_urls.txt urls/katana_urls.txt 2>/dev/null | sort -u | uro | tee urls/all_urls.txt; "
+        f"cat urls/all_urls.txt | grep '=' | tee urls/Equal_parameters.txt; "
+        f"cat urls/all_urls.txt | grep '\\.js' | tee urls/js_file.txt; "
+        f"cat urls/all_urls.txt | grep 'api' | tee urls/api_Information.txt; "
+        f"cat urls/all_urls.txt | grep -E '.env|.log|.sql|.conf' | tee urls/information_Disc.txt"
     )
-    run_step("POINT 7: Nuclei Sniper", nuclei_cmd_7)
+    run_step("7.1 URL Filtering", filter_cmd)
 
-    # --- POINT 8: NUCLEI (EQUAL PARAMETERS) ---
-    nuclei_cmd_8 = (
-        f"nuclei -l Equal_parameters.txt -t {template_path} "
-        f"-fuzz -severity low,medium,high,critical -stats -rl 6 -c 3 "
-        f"{extra_flags} -o nuclei_Equal_parameters_results.txt"
-    )
-    run_step("POINT 8: Nuclei Sniper", nuclei_cmd_8)
+    # --- 8. Nuclei Scanning ---
+    print_section("8 Nuclei Scanning")
+    t_path = os.path.expanduser("~/Downloads/NawabHunter-Ultimate/Nuclei_Templates")
+    nuclei_base = f"nuclei -t {t_path} -rl 6 -c 3 {flags}"
 
-    # --- POINT 9: NUCLEI (JS FILES) ---
-    nuclei_cmd_9 = (
-        f"nuclei -l js_file.txt -t {template_path} "
-        f"-severity low,medium,high,critical -stats -rl 6 -c 3 "
-        f"{extra_flags} -o nuclei_js_results.txt"
-    )
-    run_step("POINT 9: Nuclei Sniper", nuclei_cmd_9)
+    tasks = [
+        ("8.1 Live Subdomain", "subdomains/live_sub.txt", "vulnerability/nuclei_live.txt", True),
+        ("8.2 Equal Parameters", "urls/Equal_parameters.txt", "vulnerability/nuclei_params.txt", True),
+        ("8.3 JS Files", "urls/js_file.txt", "vulnerability/nuclei_js.txt", False),
+        ("8.4 API Info", "urls/api_Information.txt", "vulnerability/nuclei_api.txt", False),
+        ("8.5 Info Discovery", "urls/information_Disc.txt", "vulnerability/nuclei_info.txt", False)
+    ]
 
-    # --- POINT 10: NUCLEI (API INFORMATION) ---
-    nuclei_cmd_10 = (
-        f"nuclei -l api_Information.txt -t {template_path} "
-        f"-severity low,medium,high,critical -stats -rl 6 -c 3 "
-        f"{extra_flags} -o nuclei_api_results.txt"
-    )
-    run_step("POINT 10: Nuclei Sniper", nuclei_cmd_10)
+    for label, src, out, fuzz in tasks:
+        if os.path.exists(src) and os.path.getsize(src) > 0:
+            f_opt = "-fuzz" if fuzz else ""
+            run_step(label, f"{nuclei_base} -l {src} {f_opt} -severity low,medium,high,critical -o {out}")
 
-    # --- POINT 11: NUCLEI (INFORMATION DISCOVERY) ---
-    nuclei_cmd_11 = (
-        f"nuclei -l information_Disc.txt -t {template_path} "
-        f"-severity low,medium,high,critical -stats -rl 6 -c 3 "
-        f"{extra_flags} -o nuclei_information_results.txt"
-    )
-    run_step("POINT 11: Nuclei Sniper", nuclei_cmd_11)
-    
-    # --- POINT 12: NUCLEI (KATANA URLS) ---
-    nuclei_cmd_12 = (
-        f"nuclei -l katana_urls.txt -t {template_path} "
-        f"-fuzz -severity low,medium,high,critical -stats -rl 6 -c 3 "
-        f"{extra_flags} -o nuclei_katana_results.txt"
-    )
-    run_step("POINT 12: Nuclei Sniper (Katana URLs)", nuclei_cmd_12)
-    
-    # --- POINT 13: FINAL RESULTS CONSOLIDATION ---
-    master_results = "FINAL_RESULT_BY_THENAWABX.txt"
+    # --- FINAL RESULTS ---
+    master = "FINAL_RESULT_BY_THENAWABX.txt"
+    subprocess.run(f"cat vulnerability/nuclei_*.txt 2>/dev/null | sort -u > {master}", shell=True)
 
-    # Step 1: Merge all results into the master file ---
-    subprocess.run(f"cat nuclei_*.txt 2>/dev/null | sort -u > {master_results}", shell=True)
-
-    # Step 2: Pure Python logic for clean reporting ---
-    print("\n" + "="*50)
-    if os.path.exists(master_results) and os.path.getsize(master_results) > 0:
-        print(f"{G}[+] VULNERABILITY DETECTED! Check: {master_results}{W}")
-    else:
-        print(f"{R}[!] NOT FOUND VULNERABILITY{W}")
-    print("="*50 + "\n")
-    
-    os.chdir(original_dir)
-    print(f"\n{G}{B}[+] MISSION COMPLETED FOR: {domain}{W}")
+    print("\n" + "═"*60)
+    if os.path.exists(master) and os.path.getsize(master) > 0:
+        print(f"{G}{B}[+] VULNERABILITIES FOUND!\n[+] Location: {abs_path}/{master}{W}")
+    else: 
+        print(f"{R}[!] NO VULNERABILITIES FOUND.{W}")
+    print("═"*60 + "\n")
+    os.chdir(orig_dir)
 
 def main():
     banner()
-    setup_alias()
-
-    extra_flags = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else ""
-
-    print(f"{Y}[?] Enter Targets (comma separated): {W}", end="")
+    check_dependencies()
+    flags = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else ""
+    print(f"\n{C}{B}┌──({W}{G}Target Input{W}{B}{C})\n└─╼ {Y}Please Enter your Target (wildcard) Comma separated {B}{C}>> {W}", end="")
     try:
         user_input = input().strip()
-        if not user_input:
-            sys.exit(0)
-        
+        if not user_input: sys.exit(0)
         targets = [t.strip() for t in user_input.split(',')]
-        for target in targets:
-            if target:
-                process_recon(target, extra_flags)
-                
+        for t in targets:
+            if t: process_recon(t, flags)
     except KeyboardInterrupt:
-        print(f"\n{R}[!] Nawab Hunter shut down.{W}")
+        print(f"\n{R}[!] System Interrupted. Exiting...{W}")
         sys.exit(0)
-
-    print(f"\n{G}{B}--- ALL TASKS FINISHED ---{W}")
 
 if __name__ == "__main__":
     main()
