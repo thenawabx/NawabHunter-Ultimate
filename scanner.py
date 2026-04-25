@@ -21,7 +21,7 @@ def banner():
     print(f"#           {Y}NAWAB HUNTER ULTIMATE v0.0.0{M}                     #")
     print(f"#               {C}MODE: MASTER ELITE{M}                           #")
     print(f"##############################################################{W}\n")
-    print(f"{G}{B}          --- Welcome to thenawabx world ---{W}")
+    print(f"{G}{B}          --  Welcome to 'Thenawabx' world!  --{W}")
     print(f"{R}{B}          >>> PRESS Ctrl+C TO SKIP ANY STEP <<<{W}\n")
 
 def check_dependencies():
