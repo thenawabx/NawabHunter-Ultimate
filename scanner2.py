@@ -25,8 +25,7 @@ def banner():
     print(f"{R}{B}          >>> PRESS Ctrl+C TO SKIP ANY STEP <<<{W}\n")
 
 def check_dependencies():
-    # Wildcard ভার্সনে ব্যবহৃত টুলগুলোই এখানে রাখা হয়েছে
-    tools = ["httpx-toolkit", "katana", "waybackurls", "gau", "uro", "nuclei"]
+    tools = ["httpx-toolkit", "katana", "waybackurls", "uro", "nuclei"]
     missing = [t for t in tools if shutil.which(t) is None]
     if missing:
         print(f"{R}[!] Missing tools: {', '.join(missing)}{W}")
@@ -48,7 +47,6 @@ def print_section(title):
     print(f"\n{G}{B}{styled_title.center(60)}{W}\n")
 
 def process_recon(target, flags):
-    # Cleaning target name for directory
     clean_name = target.replace('.', '_').replace('https://', '').replace('http://', '').replace('/', '')
     base = f"recon_single_{clean_name}"
     
@@ -67,16 +65,15 @@ def process_recon(target, flags):
     print_section("1 Probing Target")
     run_step("1.1 Live Check", f"echo {target} | httpx-toolkit {flags} -o live_target.txt")
 
-    # --- 2. URL Collection (Using GAU, Wayback, Katana) ---
+    # --- 2. URL Collection ---
     print_section("2 Urls Collecting")
     run_step("2.1 Waybackurls", f"echo {target} | waybackurls | tee urls/wayback_urls.txt")
-    run_step("2.2 GAU Discovery", f"echo {target} | gau --threads 10 | tee urls/gau_urls.txt")
-    run_step("2.3 Katana Crawling", f"katana -u {target} -d 5 -jc -kf all -rl 10 -o urls/katana_urls.txt")
+    run_step("2.2 Katana Crawling", f"katana -u {target} -d 5 -jc -kf all -rl 10 -o urls/katana_urls.txt")
 
     # --- 3. Uro Filtering & Sorting ---
     print_section("3 Uro Filtering & Sorting")
     filter_cmd = (
-        f"cat urls/wayback_urls.txt urls/gau_urls.txt urls/katana_urls.txt 2>/dev/null | sort -u | uro | tee urls/all_urls.txt; "
+        f"cat urls/wayback_urls.txt urls/katana_urls.txt 2>/dev/null | sort -u | uro | tee urls/all_urls.txt; "
         f"cat urls/all_urls.txt | grep '=' | tee urls/Equal_parameters.txt; "
         f"cat urls/all_urls.txt | grep '\\.js' | tee urls/js_file.txt; "
         f"cat urls/all_urls.txt | grep 'api' | tee urls/api_Information.txt; "
@@ -84,7 +81,7 @@ def process_recon(target, flags):
     )
     run_step("3.1 URL Filtering", filter_cmd)
 
-    # --- 4. Nuclei Scanning (RL 6, C 3 as previous) ---
+    # --- 4. Nuclei Scanning ---
     print_section("4 Nuclei Scanning")
     t_path = os.path.expanduser("~/Downloads/NawabHunter-Ultimate/Nuclei_Templates")
     nuclei_base = f"nuclei -t {t_path} -rl 6 -c 3 {flags}"
