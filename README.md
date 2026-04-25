@@ -16,61 +16,7 @@ cd ~/Downloads
 ​**2. Install required reconnaissance tools:**
 **Note : If a tool is not installed this way, install it manually.**
 ```bash
-sudo apt update
-```
-```bash
-sudo apt install subfinder -y
-```
-```bash
-sudo apt install assetfinder -y
-```
-```bash
-sudo apt install sublist3r -y
-```
-```bash
-sudo apt install amass -y
-```
-```bash
-sudo apt install findomain -y
-```
-```bash
-sudo apt install dnsx -y
-```
-```bash
-sudo apt install httpx-toolkit -y
-```
-```bash
-sudo apt install subzy -y
-```
-```bash
-sudo apt install ffuf -y
-```
-```bash
-sudo apt install naabu -y
-```
-```bash
-sudo apt install waybackurls -y
-```
-```bash
-sudo apt install gau -y
-```
-```bash
-sudo apt install ParamSpider -y
-```
-```bash
-sudo apt install katana -y
-```
-```bash
-sudo apt install nuclei -y
-```
-```bash
-sudo apt install python3 -y
-```
-```bash
-sudo apt update --fix-missing && sudo apt install python3-pip -y && pip3 install uro --break-system-packages
-```
-```bash
-sudo apt install git -y
+sudo apt update --fix-missing && sudo apt install -y subfinder assetfinder sublist3r dnsx httpx-toolkit subzy ffuf naabu waybackurls katana nuclei python3 git python3-pip && pip3 install uro --break-system-packages
 ```
 ​**3. Clone the core NawabHunter-Ultimate repository:**
 ```bash
@@ -87,7 +33,7 @@ cd NawabHunter-Ultimate
 chmod +x scanner.py
 python3 scanner.py
 ```
-**Press Ctrl + C and again:**
+**Press Ctrl + C & again:**
 ```bash
 chmod +x scanner2.py
 python3 scanner2.py
@@ -143,17 +89,7 @@ cd ~/Downloads
 **​Install and start the Tor service, and set up the environment:**
 
 ```bash
-sudo apt install tor -y
-```
-```bash
-
-sudo systemctl start tor
-```
-```bash
-sudo systemctl status tor
-```
-```bash
-sudo apt install python3-pip -y
+sudo apt update && sudo apt install tor python3-pip -y && sudo systemctl start tor && sudo systemctl status tor
 ```
 
 ```bash
