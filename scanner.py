@@ -105,14 +105,15 @@ def process_recon(target, flags):
     # --- 8. Nuclei Scanning ---
     print_section("8 Nuclei Scanning")
     t_path = os.path.expanduser("~/Downloads/NawabHunter-Ultimate/Nuclei_Templates")
-    nuclei_base = f"nuclei -t {t_path} -rl 6 -c 3 {flags}"
+    nuclei_base = f"nuclei -t {t_path} -rl 6 -c 3 -stats {flags}" if os.path.exists(t_path) else f"nuclei -rl 6 -c 3 {flags}"
 
     tasks = [
         ("8.1 Live Subdomain", "subdomains/live_sub.txt", "vulnerability/nuclei_live.txt", True),
         ("8.2 Equal Parameters", "urls/Equal_parameters.txt", "vulnerability/nuclei_params.txt", True),
         ("8.3 JS Files", "urls/js_file.txt", "vulnerability/nuclei_js.txt", False),
         ("8.4 API Info", "urls/api_Information.txt", "vulnerability/nuclei_api.txt", False),
-        ("8.5 Info Discovery", "urls/information_Disc.txt", "vulnerability/nuclei_info.txt", False)
+        ("8.5 Info Discovery", "urls/information_Disc.txt", "vulnerability/nuclei_info.txt", False),
+        ("8.6 Katana Urls", "urls/katana_urls.txt", "vulnerability/katana_urls.txt", False)
     ]
 
     for label, src, out, fuzz in tasks:
