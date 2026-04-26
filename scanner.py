@@ -24,6 +24,22 @@ def banner():
     print(f"{G}{B}          --  Welcome to 'Thenawabx' world!  --{W}")
     print(f"{R}{B}          >>> PRESS Ctrl+C TO SKIP ANY STEP <<<{W}\n")
 
+def setup_alias():
+    """Sets up the global alias 'nawab-run' to point to this specific script."""
+    script_path = os.path.abspath(file)
+    home = os.path.expanduser("~")
+    alias_line = f"alias nawab-run='python3 {script_path}'"
+    
+    for rc_file in [".bashrc", ".zshrc"]:
+        path = os.path.join(home, rc_file)
+        if os.path.exists(path):
+            with open(path, "r") as f:
+                content = f.read()
+            # Clean old aliases and add the new one
+            if "alias nawab-run=" not in content:
+                with open(path, "a") as f:
+                    f.write(f"\n{alias_line}\n")
+                    
 def check_dependencies():
     tools = ["subfinder", "assetfinder", "sublist3r", "dnsx", "httpx-toolkit", "subzy", "katana", "waybackurls", "naabu", "uro", "nuclei", "ffuf"]
     missing = [t for t in tools if shutil.which(t) is None]
