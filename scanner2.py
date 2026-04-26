@@ -28,7 +28,7 @@ def setup_alias():
     """Sets up the global alias 'nawab-run' to point to this specific script."""
     script_path = os.path.abspath(file)
     home = os.path.expanduser("~")
-    alias_line = f"alias nawab-run='python3 {script_path}'"
+    alias_line = f"alias nawab-run2='python3 {script_path}'"
     
     for rc_file in [".bashrc", ".zshrc"]:
         path = os.path.join(home, rc_file)
