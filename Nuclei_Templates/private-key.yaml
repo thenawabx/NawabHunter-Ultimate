@@ -1,6 +1,6 @@
-Id: THENAWABX_PRIVATE_KEY_HUNTER
+id: THENAWABX_PRIVATE_KEY_HUNTER
 info:
-  name: 📑 Nawab-Private-Key-Hunter 📑
+  name: 🔑 Nawab-Private-Key-Hunter 🔑
   author: thenawabx
   severity: critical
 
@@ -9,21 +9,29 @@ http:
     path:
       - "{{BaseURL}}"
 
-    extractors:
-      - type: regex
-        part: body
-        regex:
-          - "-----BEGIN [A-Z ]+ PRIVATE KEY-----"
-
     matchers-condition: and
     matchers:
       - type: status
         status:
           - 200
+
+      - type: regex
+        part: body
+        regex:
+          - "-----BEGIN (RSA|EC|OPENSSH|DSA|ENCRYPTED) PRIVATE KEY-----"
+
       - type: word
         part: body
+        negative: true
         words:
-          - "-----BEGIN RSA PRIVATE KEY-----"
-          - "-----BEGIN EC PRIVATE KEY-----"
-          - "-----BEGIN OPENSSH PRIVATE KEY-----"
-        condition: or
+          - "example"
+          - "placeholder"
+          - "tutorial"
+          - "sample"
+          - "YOUR_PRIVATE_KEY"
+
+    extractors:
+      - type: regex
+        part: body
+        regex:
+          - "-----BEGIN [A-Z ]+ PRIVATE KEY-----[\\s\\S]*?-----END [A-Z ]+ PRIVATE KEY-----"
