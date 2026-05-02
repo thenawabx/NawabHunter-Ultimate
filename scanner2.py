@@ -21,7 +21,7 @@ def banner():
     print(f"#   ╚═╝  ╚═══╝╚═╝  ╚═╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═════╝              #")
     print(f"#                                                            #")
     print(f"#             {Y}NAWAB HUNTER ULTIMATE v4.0.0{M}                   #")
-    print(f"#               {C}MODE: FINAL ELITE MASTER{M}                     #")
+    print(f"#                 {C}MODE: FINAL ELITE MASTER{M}                   #")
     print(f"##############################################################{W}\n")
     print(f"{G}{B}          --- Welcome to 'thenawabx' world! ---{W}")
     print(f"{R}{B}  >>> PRESS Ctrl+C TO SKIP | DOUBLE PRESS TO EXIT <<<{W}\n")
