@@ -1,6 +1,6 @@
-Id: THENAWABX_AWS_KEY_HUNTER
+id: THENAWABX_AWS_KEY_HUNTER
 info:
-  name: 📑 Nawab-AWS-Key-Hunter 📑
+  name: ☁️ Nawab-AWS-Key-Hunter ☁️
   author: thenawabx
   severity: critical
 
@@ -9,18 +9,29 @@ http:
     path:
       - "{{BaseURL}}"
 
-    extractors:
-      - type: regex
-        part: body
-        regex:
-          - "(?:AKIA|ASIA)[0-9A-Z]{16}"
-
     matchers-condition: and
     matchers:
       - type: status
         status:
           - 200
+
       - type: regex
         part: body
         regex:
-          - "(?:AKIA|ASIA)[0-9A-Z]{16}"
+          - "(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}"
+        condition: and
+
+      - type: word
+        part: body
+        negative: true
+        words:
+          - "AKIAIOSFODNN7EXAMPLE"
+          - "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+          - "EXAMPLE"
+          - "placeholder"
+
+    extractors:
+      - type: regex
+        part: body
+        regex:
+          - "(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}"
