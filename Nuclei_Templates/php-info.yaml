@@ -1,6 +1,6 @@
-Id: THENAWABX_PHP_INFO_HUNTER
+id: THENAWABX_PHP_INFO_HUNTER
 info:
-  name: 📑 Nawab-PHP-Info-Hunter 📑
+  name: 🐘 Nawab-PHP-Info-Hunter 🐘
   author: thenawabx
   severity: low
 
@@ -10,16 +10,34 @@ http:
       - "{{BaseURL}}/phpinfo.php"
       - "{{BaseURL}}/info.php"
       - "{{BaseURL}}/test.php"
+      - "{{BaseURL}}/php.php"
 
     matchers-condition: and
     matchers:
       - type: status
         status:
           - 200
+
       - type: word
         part: body
         words:
           - "PHP Version"
           - "Configuration File (php.ini) Path"
           - "PHP Development Team"
+          - "System"
         condition: and
+
+      - type: word
+        part: body
+        negative: true
+        words:
+          - "example"
+          - "placeholder"
+          - "syntax"
+          - "tutorial"
+
+    extractors:
+      - type: regex
+        part: body
+        regex:
+          - "PHP Version [0-9.]+"
