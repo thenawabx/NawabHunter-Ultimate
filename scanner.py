@@ -89,12 +89,12 @@ def process_single_recon(target, extra_flags, parent_dir, is_single_mode=False):
     nuclei_base = f"nuclei -t {t_path} -severity low,medium,high,critical -stats -rl 6 -c 3 {extra_flags}"
     
     n_tasks = [
-        ("POINT 7: Nuclei sniper (Live)", "live_sub.txt", "nuclei_live.txt"),
-        ("POINT 8: Nuclei sniper (Params)", "Equal_parameters.txt", "nuclei_params.txt"),
-        ("POINT 9: Nuclei sniper (JS)", "js_file.txt", "nuclei_js.txt"),
-        ("POINT 10: Nuclei sniper (API)", "api_Information.txt", "nuclei_api.txt"),
-        ("POINT 11: Nuclei sniper (Info)", "information_Disc.txt", "nuclei_info.txt"),
-        ("POINT 12: Nuclei sniper (Katana)", "katana_urls.txt", "nuclei_katana.txt")
+        ("POINT 5: Nuclei sniper (Live)", "live_sub.txt", "nuclei_live.txt"),
+        ("POINT 6: Nuclei sniper (Params)", "Equal_parameters.txt", "nuclei_params.txt"),
+        ("POINT 7: Nuclei sniper (JS)", "js_file.txt", "nuclei_js.txt"),
+        ("POINT 8: Nuclei sniper (API)", "api_Information.txt", "nuclei_api.txt"),
+        ("POINT 9: Nuclei sniper (Info)", "information_Disc.txt", "nuclei_info.txt"),
+        ("POINT 10: Nuclei sniper (Katana)", "katana_urls.txt", "nuclei_katana.txt")
     ]
 
     found_in_target = False
