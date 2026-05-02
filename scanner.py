@@ -27,7 +27,6 @@ def banner():
     print(f"{R}{B}   >>> PRESS Ctrl+C TO SKIP | DOUBLE PRESS TO EXIT <<<{W}\n")
 
 def setup_alias():
-    """Sets up the global alias 'Runawab' to point to this specific script."""
     script_path = os.path.abspath(__file__)
     home = os.path.expanduser("~")
     alias_line = f"alias Runawab='python3 {script_path}'"
@@ -37,10 +36,10 @@ def setup_alias():
         if os.path.exists(path):
             with open(path, "r") as f:
                 content = f.read()
-            if "alias Runawab=" not in content:
+            if alias_line not in content:
                 with open(path, "a") as f:
                     f.write(f"\n# Nawab Hunter Alias\n{alias_line}\n")
-    print(f"{G}[+] Alias 'Runawab' configured. Restart terminal to use it.{W}")
+    print(f"{G}[+] Alias 'Runawab' configured successfully.{W}")
 
 def handle_interrupt():
     global last_interrupt_time
@@ -57,7 +56,7 @@ def run_step(name, target_info, cmd):
     print(f"{B}{C}└─╼ {W}{Y}[ {cmd} ]{W}")
     try:
         subprocess.run(cmd, shell=True)
-        print(f"\n{G}[✔] {name} DONE for {target_info}!{W}\n")
+        print(f"\n{G}[✔] {name} COMPLETED for {target_info}!{W}\n")
     except KeyboardInterrupt:
         handle_interrupt()
 
@@ -107,9 +106,9 @@ def process_single_recon(target, extra_flags, parent_dir, is_single_mode=False):
 
     print("\n" + "="*60)
     if found_in_target:
-        print(f"{G}{B}[+] VULNERABILITY FOUND on {clean_target}! Check: {vuln_master}{W}")
+        print(f"{G}{B}[+] VULNERABILITY DETECTED on {clean_target}! Check Master Log: {vuln_master}{W}")
     else:
-        print(f"{R}{B}[!] NO VULNERABILITY FOUND on {clean_target}.{W}")
+        print(f"{R}{B}[!] NO VULNERABILITY DETECTED on {clean_target}.{W}")
     print("="*60 + "\n")
 
     os.chdir(orig_dir)
@@ -127,17 +126,24 @@ def process_wildcard(domain, extra_flags):
              f"assetfinder --subs-only {domain} > assetfinder.txt; "
              f"sublist3r -d {domain} -o sublist3r.txt")
 
-    run_step("POINT 2: Merge & Resolve", domain, 
-             f"cat subfinder.txt assetfinder.txt sublist3r.txt 2>/dev/null | sort -u > all_subs.txt; "
+    run_step("POINT 2: Merge & Unique", domain, 
+             f"cat subfinder.txt assetfinder.txt sublist3r.txt 2>/dev/null | sort -u > all_subs.txt")
+
+    run_step("POINT 3: DNS Resolution", domain, 
              f"dnsx -l all_subs.txt {extra_flags} -o dnsx_resolved.txt")
 
-    run_step("POINT 3: Live Probing", domain, f"cat dnsx_resolved.txt | httpx-toolkit -o live_sub.txt")
+    # Following your specific Subzy logic
+    run_step("POINT 4: Takeover Check", domain, 
+             f"cat all_subs.txt | httpx-toolkit -mc 404,403,500,502,503 {extra_flags} -o takeover_for_sub.txt; "
+             f"if [ -s takeover_for_sub.txt ]; then subzy run --targets takeover_for_sub.txt {extra_flags} | tee sub_take_result.txt; fi")
+
+    run_step("POINT 5: Web Probing", domain, f"cat dnsx_resolved.txt | httpx-toolkit -o live_sub.txt")
 
     if os.path.exists("live_sub.txt") and os.path.getsize("live_sub.txt") > 0:
         with open("live_sub.txt", "r") as f:
             domains = [l.strip().replace('https://', '').replace('http://', '') for l in f if l.strip()]
         
-        print(f"\n{G}[+] Discovered Live Domains:{W}")
+        print(f"\n{G}[+] Discovered Active Targets:{W}")
         for idx, d in enumerate(domains, 1):
             print(f"{C}{idx}.{W} {d}")
         
@@ -152,7 +158,7 @@ def process_wildcard(domain, extra_flags):
                 indices = [int(x.strip()) - 1 for x in choice.split(',')]
                 targets_to_scan = [domains[i] for i in indices if 0 <= i < len(domains)]
             except:
-                print(f"{R}[!] Invalid input. Skipping deep scan.{W}")
+                print(f"{R}[!] Invalid input. Skipping deep scanning.{W}")
 
         for t in targets_to_scan:
             process_single_recon(t, extra_flags, abs_base, is_single_mode=False)
@@ -165,18 +171,19 @@ def main():
     extra_flags = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else ""
 
     print(f"{C}{B}Select Operation Mode:{W}")
-    print(f"{G}1.{W} Wildcard Mode (Subdomain Discovery)")
-    print(f"{G}2.{W} Single Mode (Deep Recon)")
-    print(f"{C}{B}└─╼ {W}{Y}Input Choice {B}{C}>> {W}", end="")
+    print(f"{G}1.{W} Wildcard Mode (Multi Deep Scanning)")
+    print(f"{G}2.{W} Domain Mode (Single Deep Scanning)")
+    print(f"{C}{B}└─╼ {W}{Y}Choice {B}{C}>> {W}", end="")
     
     mode = input().strip()
-    print(f"\n{Y}[?] Enter Target(s) (comma separated): {W}", end="")
+    print(f"\n{Y}[?] Enter Target Here (comma separated): {W}", end="")
     
     try:
         user_input = input().strip()
         if not user_input: return
         targets = [t.strip() for t in user_input.split(',')]
         
+        # Initialize master log file
         open("Vulnerability_By_Thenawabx-Tools", "a").close()
 
         for t in targets:
