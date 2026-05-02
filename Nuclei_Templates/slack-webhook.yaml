@@ -1,6 +1,6 @@
-Id: THENAWABX_SLACK_WEBHOOK_HUNTER
+id: THENAWABX_SLACK_WEBHOOK_HUNTER
 info:
-  name: 📑 Nawab-Slack-Webhook-Hunter 📑
+  name: 💬 Nawab-Slack-Webhook-Hunter 💬
   author: thenawabx
   severity: high
 
@@ -9,17 +9,27 @@ http:
     path:
       - "{{BaseURL}}"
 
-    extractors:
-      - type: regex
-        part: body
-        regex:
-          - "https://hooks\\.slack\\.com/services/T[a-zA-Z0-9_]+/B[a-zA-Z0-9_]+/[a-zA-Z0-9_]+"
-
     matchers-condition: and
     matchers:
       - type: status
         status:
           - 200
+
+      - type: regex
+        part: body
+        regex:
+          - "https://hooks\\.slack\\.com/services/T[a-zA-Z0-9_]{8,}/B[a-zA-Z0-9_]{8,}/[a-zA-Z0-9_]{24}"
+
+      - type: word
+        part: body
+        negative: true
+        words:
+          - "T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+          - "YOUR_WEBHOOK_URL"
+          - "example"
+          - "placeholder"
+
+    extractors:
       - type: regex
         part: body
         regex:
