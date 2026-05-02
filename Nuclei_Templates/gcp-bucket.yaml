@@ -1,18 +1,39 @@
-Id: THENAWABX_GCP_BUCKET_HUNTER
+id: THENAWABX_GCP_BUCKET_HUNTER
 info:
-  name: 📑 Nawab-GCP-Bucket-Hunter 📑
+  name: 🪣 Nawab-GCP-Bucket-Hunter 🪣
   author: thenawabx
   severity: medium
 
 http:
   - method: GET
     path:
-      - "https://www.googleapis.com/storage/v1/b/{{Host}}?key=AIzaSyA..." # Placeholder for testing
+      - "https://www.googleapis.com/storage/v1/b/{{Host}}"
 
-    matchers-condition: or
+    matchers-condition: and
     matchers:
+      - type: status
+        status:
+          - 200
+
       - type: word
         part: body
         words:
           - "\"kind\": \"storage#bucket\""
-          - "GoogleSecurityCanvas"
+          - "\"id\":"
+          - "\"location\":"
+        condition: and
+
+      - type: word
+        part: body
+        negative: true
+        words:
+          - "Required"
+          - "Login"
+          - "Example"
+          - "AccessDenied"
+
+    extractors:
+      - type: regex
+        part: body
+        regex:
+          - "\"selfLink\": \"https://www.googleapis.com/storage/v1/b/[a-z0-9.-]+\""
