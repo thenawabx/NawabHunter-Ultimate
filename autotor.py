@@ -4,11 +4,11 @@ def setup_alias():
     """Sets up a global alias 'start-tor' to automate TorNet with a virtual environment."""
     
     # 1. Configuration: Shortcut name and specific project path
-    alias_name = "start-tor"
+    alias_name = "startor"
     
     # 2. Build the command: Enter directory, Activate Venv, and Run TorNet
     # The command uses '&&' to ensure each step succeeds before the next one runs.
-    automation_command = f"source Downloads/NawabHunter-Ultimate/my_venv/bin/activate && tornet --interval 3 --count 0"
+    automation_command = f"source ~/Downloads/NawabHunter-Ultimate/my_venv/bin/activate && tornet --interval 3 --count 0"
     
     # 3. Locate the user's home directory and shell config files
     home = os.path.expanduser("~")
