@@ -49,9 +49,12 @@ Runawab
 
 ### 🛠 Key Features in v0.0.0:
 **1. ​Original Tool Output: Displays the raw, colorful UI and progress bars of Subfinder, Nuclei, and Httpx as they run.**
+
 **2. ​Smart Skipping: Press Ctrl + C during any step to skip that specific tool and immediately move to the next point without stopping the entire process.**
-**3. ​Organized Storage: Automatically creates a results folder named recon_target_com for every scan.**
-​**4. Global Access: The nawab-run command works system-wide after the initial configuration.**
+
+**3. ​Organized Storage: Automatically creates a results folder named recon_example_example... for every scan.**
+
+​**4. Global Access: The Runawab command works system-wide after the initial configuration.**
 
 
 # NOTE: TorNet Automation - NawabHunter Ultimate
