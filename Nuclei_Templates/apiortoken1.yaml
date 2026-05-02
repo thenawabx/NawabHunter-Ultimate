@@ -1,4 +1,4 @@
-Id: THENAWABX_FOUND_API_OR_TOKEN
+id: THENAWABX_FOUND_API_OR_TOKEN
 info:
   name: 📑 Nawab-Sensitive-Token-Hunter 📑
   author: thenawabx
@@ -9,21 +9,32 @@ http:
     path:
       - "{{BaseURL}}"
 
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: regex
+        part: body
+        regex:
+          - "AIzaSy[A-Za-z0-9_-]{35}"
+          - "ey[a-zA-Z0-9_-]{10,}\\.ey[a-zA-Z0-9_-]{10,}\\.[a-zA-Z0-9_-]{10,}"
+        condition: or
+
+      - type: word
+        part: body
+        negative: true
+        words:
+          - "YOUR_API_KEY"
+          - "EXAMPLE_TOKEN"
+          - "example.com"
+          - "template"
+          - "placeholder"
+
     extractors:
       - type: regex
         part: body
         regex:
           - "AIzaSy[A-Za-z0-9_-]{35}"
           - "ey[a-zA-Z0-9_-]{10,}\\.ey[a-zA-Z0-9_-]{10,}\\.[a-zA-Z0-9_-]{10,}"
-
-    matchers-condition: and
-    matchers:
-      - type: status
-        status:
-          - 200
-      - type: regex
-        part: body
-        regex:
-          - "AIzaSy[A-Za-z0-9_-]{35}"
-          - "ey[a-zA-Z0-9_-]{10,}\\.ey[a-zA-Z0-9_-]{10,}"
-        condition: or
