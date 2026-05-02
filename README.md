@@ -33,11 +33,6 @@ cd NawabHunter-Ultimate
 chmod +x scanner.py
 python3 scanner.py
 ```
-**Press Ctrl + C & again:**
-```bash
-chmod +x scanner2.py
-python3 scanner2.py
-```
 ## ⚠️IMPORTANT: Press Ctrl + C after the banner appears to stop the script and activate the shortcut command.
 **​6. Activate the shortcut command (Alias):**
 ```bash
@@ -49,11 +44,7 @@ source ~/.bashrc
 
 **For Wildcard**
 ```bash
-nawab-run
-```
-**For Single Domain/Subdomain**
-```bash
-nawab-run2
+Runawab
 ```
 
 ### 🛠 Key Features in v0.0.0:
