@@ -1,6 +1,6 @@
-Id: THENAWABX_FIREBASE_DB_HUNTER
+id: THENAWABX_FIREBASE_DB_HUNTER
 info:
-  name: 📑 Nawab-Firebase-DB-Hunter 📑
+  name: 🔥 Nawab-Firebase-DB-Hunter 🔥
   author: thenawabx
   severity: critical
 
@@ -9,17 +9,27 @@ http:
     path:
       - "{{BaseURL}}"
 
-    extractors:
-      - type: regex
-        part: body
-        regex:
-          - "https?://[a-z0-9.-]+\\.firebaseio\\.com"
-
     matchers-condition: and
     matchers:
       - type: status
         status:
           - 200
+
+      - type: regex
+        part: body
+        regex:
+          - "https?://[a-z0-9.-]+\\.firebaseio\\.com"
+
+      - type: word
+        part: body
+        negative: true
+        words:
+          - "project-id"
+          - "your-app"
+          - "example-firebase"
+          - "test-db"
+
+    extractors:
       - type: regex
         part: body
         regex:
