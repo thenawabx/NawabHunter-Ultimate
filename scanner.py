@@ -20,7 +20,7 @@ def banner():
     print(f"#   ██║ ╚████║██║  ██║╚███╔███╔╝██║  ██║██████╔╝             #")
     print(f"#   ╚═╝  ╚═══╝╚═╝  ╚═╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═════╝              #")
     print(f"#                                                            #")
-    print(f"#           {Y}NAWAB HUNTER ULTIMATE v0.0.0{M}                     #")
+    print(f"#           {Y}NAWAB HUNTER ULTIMATE v1.1.0{M}                     #")
     print(f"#             {C}MODE: FINAL ELITE MASTER{M}                       #")
     print(f"##############################################################{W}\n")
     print(f"{G}{B}          --- Welcome to 'thenawabx' world! ---{W}")
@@ -39,7 +39,6 @@ def setup_alias():
             if alias_line not in content:
                 with open(path, "a") as f:
                     f.write(f"\n# Nawab Hunter Alias\n{alias_line}\n")
-    print(f"{G}[+] Alias 'Runawab' configured successfully.{W}")
 
 def handle_interrupt():
     global last_interrupt_time
@@ -67,7 +66,6 @@ def process_single_recon(target, extra_flags, parent_dir, is_single_mode=False):
     target_path = os.path.join(parent_dir, folder_name)
     
     if not os.path.exists(target_path): os.makedirs(target_path)
-    
     orig_dir = os.getcwd()
     os.chdir(target_path)
 
@@ -85,15 +83,17 @@ def process_single_recon(target, extra_flags, parent_dir, is_single_mode=False):
            f"grep 'api' all_urls.txt > api_Information.txt; "
            f"grep -E '.env|.log|.sql|.conf' all_urls.txt > information_Disc.txt")
 
+    # POINT 5: Dirsearch Integration (Only saving effective links)
+    run_step("POINT 5: Dirsearch Scan", clean_target, f"dirsearch -u {clean_target} -e php,txt,html,json --format plain -o dirsearch_results.txt")
+
     nuclei_base = f"nuclei -t {t_path} -severity low,medium,high,critical -stats -rl 6 -c 3 {extra_flags}"
     
     n_tasks = [
-        ("POINT 5: Nuclei sniper (Live)", "live_sub.txt", "nuclei_live.txt"),
-        ("POINT 6: Nuclei sniper (Params)", "Equal_parameters.txt", "nuclei_params.txt"),
-        ("POINT 7: Nuclei sniper (JS)", "js_file.txt", "nuclei_js.txt"),
-        ("POINT 8: Nuclei sniper (API)", "api_Information.txt", "nuclei_api.txt"),
-        ("POINT 9: Nuclei sniper (Info)", "information_Disc.txt", "nuclei_info.txt"),
-        ("POINT 10: Nuclei sniper (Katana)", "katana_urls.txt", "nuclei_katana.txt")
+        ("POINT 6: Nuclei (Live)", "live_sub.txt", "nuclei_live.txt"),
+        ("POINT 7: Nuclei (Params)", "Equal_parameters.txt", "nuclei_params.txt"),
+        ("POINT 8: Nuclei (JS)", "js_file.txt", "nuclei_js.txt"),
+        ("POINT 9: Nuclei (API)", "api_Information.txt", "nuclei_api.txt"),
+        ("POINT 10: Nuclei (Info)", "information_Disc.txt", "nuclei_info.txt")
     ]
 
     found_in_target = False
@@ -110,13 +110,11 @@ def process_single_recon(target, extra_flags, parent_dir, is_single_mode=False):
     else:
         print(f"{R}{B}[!] NO VULNERABILITY DETECTED on {clean_target}.{W}")
     print("="*60 + "\n")
-
     os.chdir(orig_dir)
 
 def process_wildcard(domain, extra_flags):
     base_folder = f"recon_wildcard_{domain.replace('.', '_')}"
     if not os.path.exists(base_folder): os.makedirs(base_folder)
-    
     abs_base = os.path.abspath(base_folder)
     orig_dir = os.getcwd()
     os.chdir(abs_base)
@@ -126,13 +124,9 @@ def process_wildcard(domain, extra_flags):
              f"assetfinder --subs-only {domain} > assetfinder.txt; "
              f"sublist3r -d {domain} -o sublist3r.txt")
 
-    run_step("POINT 2: Merge & Unique", domain, 
-             f"cat subfinder.txt assetfinder.txt sublist3r.txt 2>/dev/null | sort -u > all_subs.txt")
+    run_step("POINT 2: Merge & Unique", domain, f"cat subfinder.txt assetfinder.txt sublist3r.txt 2>/dev/null | sort -u > all_subs.txt")
+    run_step("POINT 3: DNS Resolution", domain, f"dnsx -l all_subs.txt {extra_flags} -o dnsx_resolved.txt")
 
-    run_step("POINT 3: DNS Resolution", domain, 
-             f"dnsx -l all_subs.txt {extra_flags} -o dnsx_resolved.txt")
-
-    # Following your specific Subzy logic
     run_step("POINT 4: Takeover Check", domain, 
              f"cat all_subs.txt | httpx-toolkit -mc 404,403,500,502,503 {extra_flags} -o takeover_for_sub.txt; "
              f"if [ -s takeover_for_sub.txt ]; then subzy run --targets takeover_for_sub.txt {extra_flags} | tee sub_take_result.txt; fi")
@@ -141,28 +135,42 @@ def process_wildcard(domain, extra_flags):
 
     if os.path.exists("live_sub.txt") and os.path.getsize("live_sub.txt") > 0:
         with open("live_sub.txt", "r") as f:
-            domains = [l.strip().replace('https://', '').replace('http://', '') for l in f if l.strip()]
+            domains = [l.strip().replace('https://', '').replace('http://', '').strip('/') for l in f if l.strip()]
         
-        print(f"\n{G}[+] Discovered Active Targets:{W}")
-        for idx, d in enumerate(domains, 1):
-            print(f"{C}{idx}.{W} {d}")
+        scanned_indices = set()
         
-        print(f"\n{Y}[?] Enter indices to scan (e.g: 1,2,5) or 'all': {W}", end="")
-        choice = input().strip().lower()
-        
-        targets_to_scan = []
-        if choice == 'all':
-            targets_to_scan = domains
-        else:
-            try:
-                indices = [int(x.strip()) - 1 for x in choice.split(',')]
-                targets_to_scan = [domains[i] for i in indices if 0 <= i < len(domains)]
-            except:
-                print(f"{R}[!] Invalid input. Skipping deep scanning.{W}")
+        while len(scanned_indices) < len(domains):
+            print(f"\n{G}[+] Remaining Active Targets:{W}")
+            available_this_round = False
+            for idx, d in enumerate(domains, 0):
+                if idx not in scanned_indices:
+                    print(f"{C}{idx + 1}.{W} {d}")
+                    available_this_round = True
+            
+            if not available_this_round: break
 
-        for t in targets_to_scan:
-            process_single_recon(t, extra_flags, abs_base, is_single_mode=False)
-    
+            print(f"\n{Y}[?] Enter indices to scan (e.g: 1,2,5), 'all' or 'exit': {W}", end="")
+            choice = input().strip().lower()
+            
+            if choice == 'exit': break
+            
+            targets_to_scan = []
+            if choice == 'all':
+                targets_to_scan = [(idx, d) for idx, d in enumerate(domains) if idx not in scanned_indices]
+            else:
+                try:
+                    indices = [int(x.strip()) - 1 for x in choice.split(',')]
+                    for i in indices:
+                        if 0 <= i < len(domains) and i not in scanned_indices:
+                            targets_to_scan.append((i, domains[i]))
+                except ValueError:
+                    print(f"{R}[!] Invalid input.{W}")
+                    continue
+
+            for idx, t in targets_to_scan:
+                process_single_recon(t, extra_flags, abs_base, is_single_mode=False)
+                scanned_indices.add(idx)
+
     os.chdir(orig_dir)
 
 def main():
@@ -182,8 +190,6 @@ def main():
         user_input = input().strip()
         if not user_input: return
         targets = [t.strip() for t in user_input.split(',')]
-        
-        # Initialize master log file
         open("Vulnerability_By_Thenawabx-Tools", "a").close()
 
         for t in targets:
