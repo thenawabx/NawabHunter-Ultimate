@@ -29,7 +29,7 @@ def banner():
 def setup_alias():
     script_path = os.path.abspath(__file__)
     home = os.path.expanduser("~")
-    alias_line = f"alias Runawab='python3 {script_path}'"
+    alias_line = f"alias runawab='python3 {script_path}'"
     
     for rc_file in [".bashrc", ".zshrc"]:
         path = os.path.join(home, rc_file)
