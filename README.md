@@ -16,7 +16,7 @@ cd ~/Downloads
 ​**2. Install required reconnaissance tools:**
 **Note : If a tool is not installed this way, install it manually.**
 ```bash
-sudo apt update --fix-missing && sudo apt install -y subfinder assetfinder sublist3r dnsx httpx-toolkit subzy ffuf naabu waybackurls katana nuclei python3 git python3-pip && pip3 install uro --break-system-packages
+sudo apt update --fix-missing && sudo apt install -y subfinder assetfinder sublist3r dnsx httpx-toolkit subzy dirsearch ffuf naabu waybackurls katana nuclei python3 git python3-pip && pip3 install uro --break-system-packages
 ```
 ​**3. Clone the core NawabHunter-Ultimate repository:**
 ```bash
