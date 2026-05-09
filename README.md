@@ -44,7 +44,7 @@ source ~/.bashrc
 
 **Run This Tools Every Times**
 ```bash
-Runawab
+runawab
 ```
 
 ### 🛠 Key Features in v0.0.0:
