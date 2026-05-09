@@ -121,7 +121,7 @@ def process_wildcard(domain, extra_flags):
 
     run_step("POINT 1: Subdomain Enumeration", domain, 
              f"subfinder -d {domain} -o subfinder.txt; "
-             f"assetfinder --subs-only {domain} > assetfinder.txt; "
+             f"assetfinder --subs-only {domain} | tee assetfinder.txt; "
              f"sublist3r -d {domain} -o sublist3r.txt")
 
     run_step("POINT 2: Merge & Unique", domain, f"cat subfinder.txt assetfinder.txt sublist3r.txt 2>/dev/null | sort -u > all_subs.txt")
