@@ -1,6 +1,6 @@
 id: THENAWABX_GCP_BUCKET_HUNTER
 info:
-  name: 🪣 Nawab-GCP-Bucket-Hunter 🪣
+  name: Nawab-GCP-Bucket-Hunter
   author: thenawabx
   severity: medium
 
@@ -31,6 +31,9 @@ http:
           - "Login"
           - "Example"
           - "AccessDenied"
+          - "Error"
+          - "Invalid"
+        condition: or
 
     extractors:
       - type: regex
