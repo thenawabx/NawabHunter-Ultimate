@@ -1,6 +1,6 @@
 id: THENAWABX_FIREBASE_DB_HUNTER
 info:
-  name: 🔥 Nawab-Firebase-DB-Hunter 🔥
+  name: Nawab-Firebase-DB-Hunter
   author: thenawabx
   severity: critical
 
@@ -18,7 +18,7 @@ http:
       - type: regex
         part: body
         regex:
-          - "https?://[a-z0-9.-]+\\.firebaseio\\.com"
+          - "\bhttps?://[a-z0-9-]{3,63}\.firebaseio\.com\b"
 
       - type: word
         part: body
@@ -28,9 +28,13 @@ http:
           - "your-app"
           - "example-firebase"
           - "test-db"
+          - "placeholder"
+          - "documentation"
+          - "tutorial"
+        condition: or
 
     extractors:
       - type: regex
         part: body
         regex:
-          - "https?://[a-z0-9.-]+\\.firebaseio\\.com"
+          - "\bhttps?://[a-z0-9-]{3,63}\.firebaseio\.com\b"
