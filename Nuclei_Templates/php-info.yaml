@@ -1,6 +1,6 @@
 id: THENAWABX_PHP_INFO_HUNTER
 info:
-  name: 🐘 Nawab-PHP-Info-Hunter 🐘
+  name: Nawab-PHP-Info-Hunter
   author: thenawabx
   severity: low
 
@@ -35,6 +35,9 @@ http:
           - "placeholder"
           - "syntax"
           - "tutorial"
+          - "how to enable phpinfo"
+          - "sample script"
+        condition: or
 
     extractors:
       - type: regex
