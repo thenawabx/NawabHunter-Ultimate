@@ -3,8 +3,8 @@ import sys
 import subprocess
 import shutil
 import time
+import select
 
-# --- UI COLORS ---
 G, Y, C, M, W, R, B = "\033[92m", "\033[93m", "\033[96m", "\033[95m", "\033[0m", "\033[91m", "\033[1m"
 
 last_interrupt_time = 0
@@ -20,7 +20,7 @@ def banner():
     print(f"#   ██║ ╚████║██║  ██║╚███╔███╔╝██║  ██║██████╔╝             #")
     print(f"#   ╚═╝  ╚═══╝╚═╝  ╚═╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═════╝              #")
     print(f"#                                                            #")
-    print(f"#           {Y}NAWAB HUNTER ULTIMATE v1.1.0{M}                     #")
+    print(f"#           {Y}NAWAB HUNTER ULTIMATE v0.0.1{M}                     #")
     print(f"#             {C}MODE: FINAL ELITE MASTER{M}                       #")
     print(f"##############################################################{W}\n")
     print(f"{G}{B}          --- Welcome to 'thenawabx' world! ---{W}")
@@ -65,12 +65,15 @@ def process_single_recon(target, extra_flags, parent_dir, is_single_mode=False):
     folder_name = f"recon_{suffix}{clean_target.replace('.', '_')}"
     target_path = os.path.join(parent_dir, folder_name)
     
-    if not os.path.exists(target_path): os.makedirs(target_path)
+    if not os.path.exists(target_path): 
+        os.makedirs(target_path)
+    
     orig_dir = os.getcwd()
     os.chdir(target_path)
 
     t_path = os.path.expanduser("~/Downloads/NawabHunter-Ultimate/Nuclei_Templates")
-    vuln_master = os.path.join(orig_dir, "Vulnerability_By_Thenawabx-Tools")
+    vuln_master = os.path.join(target_path, "Vulnerability_Report.txt")
+    open(vuln_master, "a").close()
 
     run_step("POINT 1: Live Probing", clean_target, f"echo {clean_target} | httpx-toolkit {extra_flags} -o live_sub.txt")
     run_step("POINT 2: Katana Crawling", clean_target, f"katana -u {clean_target} -rl 10 -o katana_urls.txt")
@@ -83,38 +86,51 @@ def process_single_recon(target, extra_flags, parent_dir, is_single_mode=False):
            f"grep 'api' all_urls.txt > api_Information.txt; "
            f"grep -E '.env|.log|.sql|.conf' all_urls.txt > information_Disc.txt")
 
-    # POINT 5: Dirsearch Integration (Only saving effective links)
     run_step("POINT 5: Dirsearch Scan", clean_target, f"dirsearch -u {clean_target} -e php,txt,html,json --format plain -o dirsearch_results.txt")
 
     nuclei_base = f"nuclei -t {t_path} -severity low,medium,high,critical -stats -rl 6 -c 3 {extra_flags}"
     
     n_tasks = [
-        ("POINT 6: Nuclei (Live)", "live_sub.txt", "nuclei_live.txt"),
-        ("POINT 7: Nuclei (Params)", "Equal_parameters.txt", "nuclei_params.txt"),
-        ("POINT 8: Nuclei (JS)", "js_file.txt", "nuclei_js.txt"),
-        ("POINT 9: Nuclei (API)", "api_Information.txt", "nuclei_api.txt"),
-        ("POINT 10: Nuclei (Info)", "information_Disc.txt", "nuclei_info.txt")
+        ("POINT 6: Nuclei (Live)", "live_sub.txt", "nuclei_live.txt", True),
+        ("POINT 7: Nuclei (Params)", "Equal_parameters.txt", "nuclei_params.txt", True),
+        ("POINT 8: Nuclei (JS)", "js_file.txt", "nuclei_js.txt", False),
+        ("POINT 9: Nuclei (API)", "api_Information.txt", "nuclei_api.txt", False),
+        ("POINT 10: Nuclei (Info)", "information_Disc.txt", "nuclei_info.txt", False)
     ]
 
     found_in_target = False
-    for label, src, out in n_tasks:
+    for label, src, out, use_fuzz in n_tasks:
         if os.path.exists(src) and os.path.getsize(src) > 0:
-            run_step(label, clean_target, f"{nuclei_base} -l {src} -o {out}")
+            cmd_fuzz_flag = " -fuzz" if use_fuzz else ""
+            run_step(label, clean_target, f"{nuclei_base}{cmd_fuzz_flag} -l {src} -o {out}")
             if os.path.exists(out) and os.path.getsize(out) > 0:
                 found_in_target = True
                 os.system(f"cat {out} 2>/dev/null >> {vuln_master}")
 
     print("\n" + "="*60)
+    os.chdir(orig_dir)
+
     if found_in_target:
-        print(f"{G}{B}[+] VULNERABILITY DETECTED on {clean_target}! Check Master Log: {vuln_master}{W}")
+        starred_folder_name = f"*{folder_name}"
+        starred_target_path = os.path.join(parent_dir, starred_folder_name)
+        
+        if not os.path.exists(starred_target_path):
+            try:
+                os.rename(target_path, starred_target_path)
+                final_report_path = os.path.join(starred_target_path, "Vulnerability_Report.txt")
+                print(f"{G}{B}[+] VULNERABILITY DETECTED on {clean_target}! Check Log: {final_report_path}{W}")
+            except Exception:
+                print(f"{G}{B}[+] VULNERABILITY DETECTED on {clean_target}! Check Log: {vuln_master}{W}")
+        else:
+            print(f"{G}{B}[+] VULNERABILITY DETECTED on {clean_target}! Check Log: {vuln_master}{W}")
     else:
         print(f"{R}{B}[!] NO VULNERABILITY DETECTED on {clean_target}.{W}")
     print("="*60 + "\n")
-    os.chdir(orig_dir)
 
 def process_wildcard(domain, extra_flags):
     base_folder = f"recon_wildcard_{domain.replace('.', '_')}"
-    if not os.path.exists(base_folder): os.makedirs(base_folder)
+    if not os.path.exists(base_folder): 
+        os.makedirs(base_folder)
     abs_base = os.path.abspath(base_folder)
     orig_dir = os.getcwd()
     os.chdir(abs_base)
@@ -147,12 +163,23 @@ def process_wildcard(domain, extra_flags):
                     print(f"{C}{idx + 1}.{W} {d}")
                     available_this_round = True
             
-            if not available_this_round: break
+            if not available_this_round: 
+                break
 
-            print(f"\n{Y}[?] Enter indices to scan (e.g: 1,2,5), 'all' or 'exit': {W}", end="")
-            choice = input().strip().lower()
+            print(f"\n{Y}[?] Enter indices to scan (e.g: 1,2,5), 'all' or 'exit' [Auto-all in 15s]: {W}", end="", flush=True)
             
-            if choice == 'exit': break
+            try:
+                rlist, _, _ = select.select([sys.stdin], [], [], 15)
+                if rlist:
+                    choice = sys.stdin.readline().strip().lower()
+                else:
+                    print(f"\n{M}[!] Timeout. Scanning 'all' remaining targets...{W}")
+                    choice = 'all'
+            except Exception:
+                choice = 'all'
+            
+            if choice == 'exit': 
+                break
             
             targets_to_scan = []
             if choice == 'all':
@@ -181,16 +208,25 @@ def main():
     print(f"{C}{B}Select Operation Mode:{W}")
     print(f"{G}1.{W} Wildcard Mode (Multi Deep Scanning)")
     print(f"{G}2.{W} Domain Mode (Single Deep Scanning)")
-    print(f"{C}{B}└─╼ {W}{Y}Choice {B}{C}>> {W}", end="")
+    print(f"{C}{B}└─╼ {W}{Y}Choice {B}{C}>> {W}", end="", flush=True)
     
-    mode = input().strip()
+    try:
+        rlist, _, _ = select.select([sys.stdin], [], [], 15)
+        if rlist:
+            mode = sys.stdin.readline().strip()
+        else:
+            print(f"\n{M}[!] Timeout. Selecting default Mode 1...{W}")
+            mode = "1"
+    except Exception:
+        mode = "1"
+        
     print(f"\n{Y}[?] Enter Target Here (comma separated): {W}", end="")
     
     try:
         user_input = input().strip()
-        if not user_input: return
+        if not user_input: 
+            return
         targets = [t.strip() for t in user_input.split(',')]
-        open("Vulnerability_By_Thenawabx-Tools", "a").close()
 
         for t in targets:
             if mode == "1":
