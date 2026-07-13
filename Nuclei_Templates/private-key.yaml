@@ -1,6 +1,6 @@
 id: THENAWABX_PRIVATE_KEY_HUNTER
 info:
-  name: 🔑 Nawab-Private-Key-Hunter 🔑
+  name: Nawab-Private-Key-Hunter
   author: thenawabx
   severity: critical
 
@@ -29,6 +29,10 @@ http:
           - "tutorial"
           - "sample"
           - "YOUR_PRIVATE_KEY"
+          - "how to"
+          - "documentation"
+          - "-----BEGIN RSA PRIVATE KEY-----\nMIIE"
+        condition: or
 
     extractors:
       - type: regex
