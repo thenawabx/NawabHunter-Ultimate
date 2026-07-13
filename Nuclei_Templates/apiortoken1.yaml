@@ -19,7 +19,7 @@ http:
         part: body
         regex:
           - "AIzaSy[A-Za-z0-9_-]{35}"
-          - "ey[a-zA-Z0-9_-]{10,}\\.ey[a-zA-Z0-9_-]{10,}\\.[a-zA-Z0-9_-]{10,}"
+          - "ey[a-zA-Z0-9_-]{15,}\\.ey[a-zA-Z0-9_-]{15,}\\.[a-zA-Z0-9_-]{10,}"
         condition: or
 
       - type: word
@@ -31,10 +31,15 @@ http:
           - "example.com"
           - "template"
           - "placeholder"
+          - "your-token-here"
+          - "<api-key>"
+          - "test_token"
+          - "fake_key"
+        condition: or
 
     extractors:
       - type: regex
         part: body
         regex:
           - "AIzaSy[A-Za-z0-9_-]{35}"
-          - "ey[a-zA-Z0-9_-]{10,}\\.ey[a-zA-Z0-9_-]{10,}\\.[a-zA-Z0-9_-]{10,}"
+          - "ey[a-zA-Z0-9_-]{15,}\\.ey[a-zA-Z0-9_-]{15,}\\.[a-zA-Z0-9_-]{10,}"
