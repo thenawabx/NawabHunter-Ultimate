@@ -4,6 +4,7 @@ import subprocess
 import shutil
 import time
 import select
+import signal
 
 G, Y, C, M, W, R, B = "\033[92m", "\033[93m", "\033[96m", "\033[95m", "\033[0m", "\033[91m", "\033[1m"
 
@@ -20,7 +21,7 @@ def banner():
     print(f"#   ██║ ╚████║██║  ██║╚███╔███╔╝██║  ██║██████╔╝             #")
     print(f"#   ╚═╝  ╚═══╝╚═╝  ╚═╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═════╝              #")
     print(f"#                                                            #")
-    print(f"#           {Y}NAWAB HUNTER ULTIMATE v0.0.1{M}                     #")
+    print(f"#           {Y}NAWAB HUNTER ULTIMATE v0.1.1{M}                     #")
     print(f"#             {C}MODE: FINAL ELITE MASTER{M}                       #")
     print(f"##############################################################{W}\n")
     print(f"{G}{B}          --- Welcome to 'thenawabx' world! ---{W}")
@@ -53,10 +54,16 @@ def handle_interrupt():
 def run_step(name, target_info, cmd):
     print(f"{B}{C}┌──[{W}{M}{name}{W}{B}{C}] Target: {W}{G}{target_info}{W}")
     print(f"{B}{C}└─╼ {W}{Y}[ {cmd} ]{W}")
+    
+    # Subprocess Interrupt Fix using preexec_fn
     try:
-        subprocess.run(cmd, shell=True)
-        print(f"\n{G}[✔] {name} COMPLETED for {target_info}!{W}\n")
+        proc = subprocess.Popen(cmd, shell=True, preexec_fn=os.setsid)
+        proc.wait()
     except KeyboardInterrupt:
+        try:
+            os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+        except Exception:
+            pass
         handle_interrupt()
 
 def process_single_recon(target, extra_flags, parent_dir, is_single_mode=False):
