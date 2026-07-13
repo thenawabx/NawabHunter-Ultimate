@@ -1,6 +1,6 @@
 id: THENAWABX_STRIPE_KEY_HUNTER
 info:
-  name: 💳 Nawab-Stripe-Key-Hunter 💳
+  name: Nawab-Stripe-Key-Hunter
   author: thenawabx
   severity: critical
 
@@ -18,9 +18,9 @@ http:
       - type: regex
         part: body
         regex:
-          - "sk_live_[0-9a-zA-Z]{24,}"
-          - "pk_live_[0-9a-zA-Z]{24,}"
-          - "rk_live_[0-9a-zA-Z]{24,}"
+          - "\bsk_live_[0-9a-zA-Z]{24,}\b"
+          - "\bpk_live_[0-9a-zA-Z]{24,}\b"
+          - "\brk_live_[0-9a-zA-Z]{24,}\b"
         condition: or
 
       - type: word
@@ -32,9 +32,12 @@ http:
           - "example"
           - "placeholder"
           - "YOUR_STRIPE_KEY"
+          - "how to integrate stripe"
+          - "documentation"
+        condition: or
 
     extractors:
       - type: regex
         part: body
         regex:
-          - "(sk|pk|rk)_live_[0-9a-zA-Z]{24,}"
+          - "\b(sk|pk|rk)_live_[0-9a-zA-Z]{24,}\b"
