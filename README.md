@@ -16,7 +16,8 @@ cd ~/Downloads
 ​**2. Install required reconnaissance tools:**
 **Note : If a tool is not installed this way, install it manually.**
 ```bash
-sudo apt update --fix-missing -y && sudo apt install subfinder -y && sudo apt install -y && sudo apt install assetfinder -y && sudo apt install sublist3r -y && sudo apt install dnsx -y && sudo apt install httpx-toolkit -y && sudo apt install dirsearch -y && sudo apt install ffuf -y && sudo apt install naabu -y && sudo apt install nuclei -y && sudo apt install python3 -y && sudo apt install git -y && sudo apt install python3-pip && pip3 install uro --break-system-packages -y && sudo apt install katana -y && sudo apt install waybackurls -y && sudo apt install subzy -y 
+sudo apt update --fix-missing -y && sudo apt install golang -y && sudo apt install subfinder -y && sudo apt install -y && sudo apt install assetfinder -y && sudo apt install sublist3r -y && sudo apt install dnsx -y && sudo apt install httpx-toolkit -y && sudo apt install dirsearch -y && sudo apt install ffuf -y && sudo apt install naabu -y && sudo apt install nuclei -y && sudo apt install python3 -y && sudo apt install git -y && sudo apt install python3-pip && pip3 install uro --break-system-packages -y && go install github.com/projectdiscovery/katana/cmd/katana@latest && go install github.com/tomnomnom/waybackurls@latest && go install -v github.com/PentestPad/subzy@latest
+
 ```
 ​**3. Clone the core NawabHunter-Ultimate repository:**
 ```bash
