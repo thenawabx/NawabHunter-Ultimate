@@ -1,6 +1,6 @@
 id: THENAWABX_SENSITIVE_BACKUP_HUNTER
 info:
-  name: 🗄️ Nawab-Sensitive-Backup-Hunter 🗄️
+  name: Nawab-Sensitive-Backup-Hunter
   author: thenawabx
   severity: high
 
@@ -35,9 +35,12 @@ http:
           - "<html"
           - "<body"
           - "placeholder"
+          - "page not found"
+          - "404"
+        condition: or
 
     extractors:
       - type: regex
         part: body
         regex:
-          - "(?i)(DB_PASSWORD|MYSQL_ROOT_PASSWORD|AUTH_TOKEN|SECRET_KEY).*=.*"
+          - "(?i)(DB_PASSWORD|MYSQL_ROOT_PASSWORD|AUTH_TOKEN|SECRET_KEY)[^\n]*=[^\n]*"
