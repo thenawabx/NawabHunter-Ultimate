@@ -39,4 +39,4 @@ http:
       - type: regex
         part: body
         regex:
-          - "url\s*=\s*([^\s\n]+)"
+          - "url\\s*=\\s*([^\\s\\n]+)"
