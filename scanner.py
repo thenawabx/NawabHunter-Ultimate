@@ -193,7 +193,7 @@ def process_wildcard(domain, extra_flags, resume_indices=None):
     orig_dir = os.getcwd()
     os.chdir(abs_base)
 
-    if not resume_indices:
+    if not os.path.exists("live_sub.txt") or os.path.getsize("live_sub.txt") == 0:
         run_step("POINT 1: Subdomain Enumeration", domain, 
                  f"subfinder -d {domain} -o subfinder.txt; "
                  f"assetfinder --subs-only {domain} | tee assetfinder.txt; "
@@ -207,12 +207,20 @@ def process_wildcard(domain, extra_flags, resume_indices=None):
                  f"if [ -s takeover_for_sub.txt ]; then subzy run --targets takeover_for_sub.txt {extra_flags} | tee sub_take_result.txt; fi")
 
         run_step("POINT 5: Web Probing", domain, f"cat dnsx_resolved.txt | httpx-toolkit -o live_sub.txt")
+    else:
+        print(f"\n{G}[+] Existing 'live_sub.txt' found. Skipping Subdomain Enumeration!{W}\n")
+
+    
+    scanned_indices = set(resume_indices) if resume_indices is not None else set()
+    save_progress(progress_file_path, {
+        "mode": "1",
+        "target_domain": domain,
+        "scanned_indices": list(scanned_indices)
+    })
 
     if os.path.exists("live_sub.txt") and os.path.getsize("live_sub.txt") > 0:
         with open("live_sub.txt", "r") as f:
             domains = [l.strip().replace('https://', '').replace('http://', '').strip('/') for l in f if l.strip()]
-        
-        scanned_indices = set(resume_indices) if resume_indices is not None else set()
         
         while len(scanned_indices) < len(domains):
             clear_input_buffer()
@@ -265,13 +273,9 @@ def process_wildcard(domain, extra_flags, resume_indices=None):
                     continue
 
             for idx, t in targets_to_scan:
-                save_progress(progress_file_path, {
-                    "mode": "1",
-                    "target_domain": domain,
-                    "scanned_indices": list(scanned_indices)
-                })
                 process_single_recon(t, extra_flags, abs_base, master_vuln_file)
                 scanned_indices.add(idx)
+                
                 save_progress(progress_file_path, {
                     "mode": "1",
                     "target_domain": domain,
