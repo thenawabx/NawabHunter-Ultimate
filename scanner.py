@@ -261,13 +261,8 @@ def process_wildcard(domain, extra_flags, root_dir, resume_indices=None):
 
         run_step("POINT 4: Subdomain takeover Check", domain, 
                  f"cat all_subs.txt | httpx-toolkit -mc 404,403,500,502,503 {extra_flags} -o takeover_for_sub.txt; "
-                 f"if [ -s takeover_for_sub.txt ]; then "
-                 f"subzy run --targets takeover_for_sub.txt {extra_flags} | grep -i 'VULNERABLE' > sub_take_result.txt; "
-                 f"fi")
-
-        if write_to_master_report(master_vuln_file, domain, "POINT 4: Subdomain Takeover Result", "sub_take_result.txt"):
-            print(f"{G}[+] Subdomain Takeover Vulnerability Found! Check: {master_vuln_file}{W}")
-
+                 f"if [ -s takeover_for_sub.txt ]; then subzy run --targets takeover_for_sub.txt {extra_flags}; fi")
+        
         run_step("POINT 5: Web Probing", domain, f"cat dnsx_resolved.txt | httpx-toolkit -o live_sub.txt")
 
         run_step("POINT 5.1: Mass Nmap Scan (All Live Subdomains)", domain,
