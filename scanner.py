@@ -175,18 +175,17 @@ def process_single_recon(target, extra_flags, parent_dir, master_vuln_file):
         f"if [ -s ffuf_raw.json ]; then jq -r '.results[] | \"\\(.status) | \\(.url)\"' ffuf_raw.json > ffuf_results.txt; rm -f ffuf_raw.json; fi; "
         f"fi"
     )
-    run_step("POINT 5: FFUF Fuzzing", clean_target, ffuf_cmd)
-
-    dep_check_cmd = (
-        f"if [ -s package_json.txt ]; then "
-        f"mkdir -p tmp_pkg && cd tmp_pkg; "
-        f"cat ../package_json.txt | xargs -n1 -I{{}} curl -s \"{{}}\" -O; "
-        f"res=$(find . -type f -name \"package.json*\" | xargs -n1 -I{{}} cat {{}} 2>/dev/null | jq -r '.dependencies + .devDependencies' 2>/dev/null | cut -d : -f 1 | tr -d '\"|}}|{{' | sort -u | tr -s \" \" | sort -u | xargs -n1 -I{{}} echo \"https://registry.npmjs.org/{{}}\" | grep -v \"@\" | httpx -status-code -silent -content-length -mc 404); "
-        f"if [ ! -z \"$res\" ]; then echo \"$res\" > ../vulnerable_dependency_takeover.txt; fi; "
-        f"cd .. && rm -rf tmp_pkg; "
+    ffuf_cmd = (
+        f"WORDLIST=/usr/share/wordlists/dirb/common.txt; "
+        f"if [ -f $WORDLIST ]; then "
+        f"cat $WORDLIST | pv -l -s $(wc -l < $WORDLIST) | ffuf -s -u http://{clean_target}/FUZZ -w - -e .php,.txt,.html,.json -mc 200,204,301,302,307,401,403 -o ./ffuf_raw.json -of json > /dev/null 2>&1; "
+        f"if [ -s ./ffuf_raw.json ]; then jq -r '.results[] | \"\\(.status) | \\(.url)\"' ./ffuf_raw.json > ./ffuf_results.txt; rm -f ./ffuf_raw.json; fi; "
+        f"else "
+        f"ffuf -s -u http://{clean_target}/FUZZ -w $WORDLIST -e .php,.txt,.html,.json -mc 200,204,301,302,307,401,403 -o ./ffuf_raw.json -of json > /dev/null 2>&1; "
+        f"if [ -s ./ffuf_raw.json ]; then jq -r '.results[] | \"\\(.status) | \\(.url)\"' ./ffuf_raw.json > ./ffuf_results.txt; rm -f ./ffuf_raw.json; fi; "
         f"fi"
     )
-    run_step("POINT 6: Dependency Confusion Check", clean_target, dep_check_cmd)
+    run_step("POINT 5: FFUF Fuzzing", clean_target, ffuf_cmd)
 
     nuclei_base = f"nuclei -t {t_path} -severity low,medium,high,critical -stats -rl 6 -c 3 {extra_flags}"
     
