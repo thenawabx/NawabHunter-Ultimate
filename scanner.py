@@ -63,7 +63,7 @@ def banner():
     print(f"#   ██║ ╚████║██║  ██║╚███╔███╔╝██║  ██║██████╔╝             #")
     print(f"#   ╚═╝  ╚═══╝╚═╝  ╚═╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═════╝              #")
     print(f"#                                                            #")
-    print(f"#           {Y}NAWAB HUNTER ULTIMATE v0.1.1{M}                     #")
+    print(f"#           {Y}NAWAB HUNTER ULTIMATE v0.2.0{M}                     #")
     print(f"#             {C}MODE: FINAL ELITE MASTER{M}                       #")
     print(f"##############################################################{W}\n")
     print(f"{G}{B}          --- Welcome to 'thenawabx' world! ---{W}")
@@ -107,6 +107,19 @@ def run_step(name, target_info, cmd):
             pass
         handle_interrupt()
 
+def write_to_master_report(master_file, target, step_label, file_source):
+    if os.path.exists(file_source) and os.path.getsize(file_source) > 0:
+        with open(master_file, "a") as f_master:
+            f_master.write(f"\n========================================\n")
+            f_master.write(f"TARGET: {target}\n")
+            f_master.write(f"STEP: {step_label}\n")
+            f_master.write(f"========================================\n")
+            with open(file_source, "r") as f_out:
+                f_master.write(f_out.read())
+            f_master.write("\n")
+        return True
+    return False
+
 def process_single_recon(target, extra_flags, parent_dir, master_vuln_file):
     clean_target = target.replace('https://', '').replace('http://', '').strip('/')
     folder_name = f"sub_{clean_target.replace('.', '_')}"
@@ -129,36 +142,72 @@ def process_single_recon(target, extra_flags, parent_dir, master_vuln_file):
            f"grep '=' all_urls.txt > Equal_parameters.txt; "
            f"grep '\\.js' all_urls.txt > js_file.txt; "
            f"grep 'api' all_urls.txt > api_Information.txt; "
+           f"grep 'package\\.json' all_urls.txt > package_json.txt; "
            f"grep -E '.env|.log|.sql|.conf' all_urls.txt > information_Disc.txt")
 
-    run_step("POINT 5: FFUF Fuzzing", clean_target, f"ffuf -u http://{clean_target}/FUZZ -w /usr/share/wordlists/dirb/common.txt -e .php,.txt,.html,.json -mc 200,204,301,302,307,401,403 -o ffuf_results.txt -of md")
+    run_step("POINT 4.1: PAC & Config Detection", clean_target,
+           f"grep -iE '\\.pac|\\.conf|\\.config' all_urls.txt > pac_config_files.txt; "
+           f"if [ -s pac_config_files.txt ]; then "
+           f"cat pac_config_files.txt | xargs -I{{}} curl -s -k \"{{}}\" | grep -iE 'FindProxyForURL|PROXY|DIRECT' > proxy_pac_findings.txt; "
+           f"fi")
+
+    run_step("POINT 4.2: JS Secrets Extraction", clean_target,
+           f"if [ -s js_file.txt ]; then "
+           f"cat js_file.txt | httpx-toolkit -silent | mantra -s > js_secrets.txt 2>/dev/null; "
+           f"fi")
+
+    run_step("POINT 4.3: Traceroute & IP Range Expansion", clean_target,
+           f"traceroute -n {clean_target} 2>/dev/null | grep -E -o '([0-9]{{1,3}}\\.)[0-9]{{1,3}}\\.[0-9]{{1,3}}\\.[0-9]{{1,3}}' | sort -u > traceroute_ips.txt; "
+           f"if [ -s traceroute_ips.txt ]; then "
+           f"cat traceroute_ips.txt | mapcidr -cl 24 -silent 2>/dev/null | httpx-toolkit -silent -o live_ip_range.txt; "
+           f"fi")
+
+    run_step("POINT 4.4: Single Target Nmap Scan", clean_target,
+           f"nmap -sV --top-ports 100 --open -T4 {clean_target} -oN nmap_result.txt > /dev/null 2>&1")
+
+    run_step("POINT 5: FFUF Fuzzing", clean_target, 
+           f"ffuf -s -u http://{clean_target}/FUZZ -w /usr/share/wordlists/dirb/common.txt -e .php,.txt,.html,.json -mc 200,204,301,302,307,401,403 -o ffuf_raw.json -of json > /dev/null 2>&1; "
+           f"if [ -s ffuf_raw.json ]; then jq -r '.results[] | \"\\(.status) | \\(.url)\"' ffuf_raw.json > ffuf_results.txt; rm -f ffuf_raw.json; fi")
+
+    dep_check_cmd = (
+        f"if [ -s package_json.txt ]; then "
+        f"mkdir -p tmp_pkg && cd tmp_pkg; "
+        f"cat ../package_json.txt | xargs -n1 -I{{}} curl -s \"{{}}\" -O; "
+        f"res=$(find . -type f -name \"package.json*\" | xargs -n1 -I{{}} cat {{}} 2>/dev/null | jq -r '.dependencies + .devDependencies' 2>/dev/null | cut -d : -f 1 | tr -d '\"|}}|{{' | sort -u | tr -s \" \" | sort -u | xargs -n1 -I{{}} echo \"https://registry.npmjs.org/{{}}\" | grep -v \"@\" | httpx -status-code -silent -content-length -mc 404); "
+        f"if [ ! -z \"$res\" ]; then echo \"$res\" > ../vulnerable_dependency_takeover.txt; fi; "
+        f"cd .. && rm -rf tmp_pkg; "
+        f"fi"
+    )
+    run_step("POINT 6: Dependency Confusion Check", clean_target, dep_check_cmd)
 
     nuclei_base = f"nuclei -t {t_path} -severity low,medium,high,critical -stats -rl 6 -c 3 {extra_flags}"
     
     n_tasks = [
-        ("POINT 6: Nuclei (Live)", "live_sub.txt", "nuclei_live.txt", True),
-        ("POINT 7: Nuclei (Params)", "Equal_parameters.txt", "nuclei_params.txt", True),
-        ("POINT 8: Nuclei (JS)", "js_file.txt", "nuclei_js.txt", False),
-        ("POINT 9: Nuclei (API)", "api_Information.txt", "nuclei_api.txt", False),
-        ("POINT 10: Nuclei (Info)", "information_Disc.txt", "nuclei_info.txt", False)
+        ("POINT 7: Nuclei (Live)", "live_sub.txt", "nuclei_live.txt", True),
+        ("POINT 8: Nuclei (Params)", "Equal_parameters.txt", "nuclei_params.txt", True),
+        ("POINT 9: Nuclei (JS)", "js_file.txt", "nuclei_js.txt", False),
+        ("POINT 10: Nuclei (API)", "api_Information.txt", "nuclei_api.txt", False),
+        ("POINT 11: Nuclei (Package JSON)", "package_json.txt", "nuclei_package_json.txt", False),
+        ("POINT 12: Nuclei (Info)", "information_Disc.txt", "nuclei_info.txt", False)
     ]
 
     found_in_target = False
+
     for label, src, out, use_fuzz in n_tasks:
         if os.path.exists(src) and os.path.getsize(src) > 0:
             cmd_fuzz_flag = " -fuzz" if use_fuzz else ""
             run_step(label, clean_target, f"{nuclei_base}{cmd_fuzz_flag} -l {src} -o {out}")
-            
-            if os.path.exists(out) and os.path.getsize(out) > 0:
+            if write_to_master_report(master_vuln_file, clean_target, label, out):
                 found_in_target = True
-                with open(master_vuln_file, "a") as f_master:
-                    f_master.write(f"\n========================================\n")
-                    f_master.write(f"TARGET SUBDOMAIN: {clean_target}\n")
-                    f_master.write(f"SCAN STEP: {label}\n")
-                    f_master.write(f"========================================\n")
-                    with open(out, "r") as f_out:
-                        f_master.write(f_out.read())
-                    f_master.write("\n")
+
+    if write_to_master_report(master_vuln_file, clean_target, "POINT 6: Dependency Confusion Check", "vulnerable_dependency_takeover.txt"):
+        found_in_target = True
+
+    if write_to_master_report(master_vuln_file, clean_target, "POINT 4.1: Proxy PAC Finding Detected!", "proxy_pac_findings.txt"):
+        found_in_target = True
+
+    if write_to_master_report(master_vuln_file, clean_target, "POINT 4.2: Sensitive JS Secrets Found!", "js_secrets.txt"):
+        found_in_target = True
 
     print("\n" + "="*60)
     os.chdir(orig_dir)
@@ -169,7 +218,7 @@ def process_single_recon(target, extra_flags, parent_dir, master_vuln_file):
         print(f"{R}{B}[!] NO VULNERABILITY DETECTED on {clean_target}.{W}")
     print("="*60 + "\n")
 
-def process_single_domain_mode(target, extra_flags):
+def process_single_domain_mode(target, extra_flags, root_dir):
     clean_target = target.replace('https://', '').replace('http://', '').strip('/')
     folder_name = f"recon_single_{clean_target.replace('.', '_')}"
     
@@ -177,17 +226,17 @@ def process_single_domain_mode(target, extra_flags):
         os.makedirs(folder_name)
         
     abs_folder = os.path.abspath(folder_name)
-    master_vuln_file = os.path.join(abs_folder, "Vulnerability_Report.txt")
+    master_vuln_file = os.path.join(root_dir, "Vulnerability_Report.txt")
     
     process_single_recon(clean_target, extra_flags, abs_folder, master_vuln_file)
 
-def process_wildcard(domain, extra_flags, resume_indices=None):
+def process_wildcard(domain, extra_flags, root_dir, resume_indices=None):
     base_folder = f"recon_wildcard_{domain.replace('.', '_')}"
     if not os.path.exists(base_folder): 
         os.makedirs(base_folder)
         
     abs_base = os.path.abspath(base_folder)
-    master_vuln_file = os.path.join(abs_base, "Vulnerability_Report.txt")
+    master_vuln_file = os.path.join(root_dir, "Vulnerability_Report.txt")
     progress_file_path = os.path.join(abs_base, ".nawab_progress.json")
     
     orig_dir = os.getcwd()
@@ -202,15 +251,24 @@ def process_wildcard(domain, extra_flags, resume_indices=None):
         run_step("POINT 2: Merge & Unique", domain, f"cat subfinder.txt assetfinder.txt sublist3r.txt 2>/dev/null | sort -u > all_subs.txt")
         run_step("POINT 3: DNS Resolution", domain, f"dnsx -l all_subs.txt {extra_flags} -o dnsx_resolved.txt")
 
-        run_step("POINT 4: Takeover Check", domain, 
+        run_step("POINT 4: Subdomain takeover Check", domain, 
                  f"cat all_subs.txt | httpx-toolkit -mc 404,403,500,502,503 {extra_flags} -o takeover_for_sub.txt; "
                  f"if [ -s takeover_for_sub.txt ]; then subzy run --targets takeover_for_sub.txt {extra_flags} | tee sub_take_result.txt; fi")
 
+        if write_to_master_report(master_vuln_file, domain, "POINT 4: Subdomain Takeover Result", "sub_take_result.txt"):
+            print(f"{G}[+] Subdomain Takeover Vulnerability Found! Check: {master_vuln_file}{W}")
+
         run_step("POINT 5: Web Probing", domain, f"cat dnsx_resolved.txt | httpx-toolkit -o live_sub.txt")
+
+        run_step("POINT 5.1: Mass Nmap Scan (All Live Subdomains)", domain,
+                 f"if [ -s live_sub.txt ]; then "
+                 f"sed -E 's#https?://##' live_sub.txt | cut -d/ -f1 | sort -u > clean_live_sub.txt; "
+                 f"nmap -iL clean_live_sub.txt -sV --top-ports 100 --open -T4 -oN mass_nmap_subdomains.txt > /dev/null 2>&1; "
+                 f"fi")
+
     else:
         print(f"\n{G}[+] Existing 'live_sub.txt' found. Skipping Subdomain Enumeration!{W}\n")
 
-    
     scanned_indices = set(resume_indices) if resume_indices is not None else set()
     save_progress(progress_file_path, {
         "mode": "1",
@@ -288,6 +346,7 @@ def process_wildcard(domain, extra_flags, resume_indices=None):
 def main():
     setup_alias()
     banner()
+    root_dir = os.getcwd()
     extra_flags = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else ""
 
     prog_file, saved_data, found_folder = check_existing_sessions()
@@ -300,7 +359,7 @@ def main():
             if choice == 'y':
                 scanned_indices = saved_data.get("scanned_indices", [])
                 print(f"\n{G}[+] Resuming scan for {target_domain}...{W}")
-                process_wildcard(target_domain, extra_flags, resume_indices=scanned_indices)
+                process_wildcard(target_domain, extra_flags, root_dir, resume_indices=scanned_indices)
                 return
             else:
                 clear_progress(prog_file)
@@ -334,9 +393,9 @@ def main():
 
         for t in targets:
             if mode == "1":
-                process_wildcard(t, extra_flags)
+                process_wildcard(t, extra_flags, root_dir)
             elif mode == "2":
-                process_single_domain_mode(t, extra_flags)
+                process_single_domain_mode(t, extra_flags, root_dir)
                 
     except KeyboardInterrupt:
         handle_interrupt()
