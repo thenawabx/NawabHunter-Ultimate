@@ -163,11 +163,19 @@ def process_single_recon(target, extra_flags, parent_dir, master_vuln_file):
            f"fi")
 
     run_step("POINT 4.4: Single Target Nmap Scan", clean_target,
-           f"nmap -sV --top-ports 100 --open -T4 {clean_target} -oN nmap_result.txt > /dev/null 2>&1")
+           f"nmap -Pn -n -sV --top-ports 100 --open -T4 {clean_target} -oN nmap_result.txt > /dev/null 2>&1")
 
-    run_step("POINT 5: FFUF Fuzzing", clean_target, 
-           f"ffuf -s -u http://{clean_target}/FUZZ -w /usr/share/wordlists/dirb/common.txt -e .php,.txt,.html,.json -mc 200,204,301,302,307,401,403 -o ffuf_raw.json -of json > /dev/null 2>&1; "
-           f"if [ -s ffuf_raw.json ]; then jq -r '.results[] | \"\\(.status) | \\(.url)\"' ffuf_raw.json > ffuf_results.txt; rm -f ffuf_raw.json; fi")
+    ffuf_cmd = (
+        f"WORDLIST=/usr/share/wordlists/dirb/common.txt; "
+        f"if [ -f $WORDLIST ]; then "
+        f"cat $WORDLIST | pv -l -s $(wc -l < $WORDLIST) | ffuf -s -u http://{clean_target}/FUZZ -w - -e .php,.txt,.html,.json -mc 200,204,301,302,307,401,403 -o ffuf_raw.json -of json > /dev/null 2>&1; "
+        f"if [ -s ffuf_raw.json ]; then jq -r '.results[] | \"\\(.status) | \\(.url)\"' ffuf_raw.json > ffuf_results.txt; rm -f ffuf_raw.json; fi; "
+        f"else "
+        f"ffuf -s -u http://{clean_target}/FUZZ -w $WORDLIST -e .php,.txt,.html,.json -mc 200,204,301,302,307,401,403 -o ffuf_raw.json -of json > /dev/null 2>&1; "
+        f"if [ -s ffuf_raw.json ]; then jq -r '.results[] | \"\\(.status) | \\(.url)\"' ffuf_raw.json > ffuf_results.txt; rm -f ffuf_raw.json; fi; "
+        f"fi"
+    )
+    run_step("POINT 5: FFUF Fuzzing", clean_target, ffuf_cmd)
 
     dep_check_cmd = (
         f"if [ -s package_json.txt ]; then "
@@ -253,7 +261,9 @@ def process_wildcard(domain, extra_flags, root_dir, resume_indices=None):
 
         run_step("POINT 4: Subdomain takeover Check", domain, 
                  f"cat all_subs.txt | httpx-toolkit -mc 404,403,500,502,503 {extra_flags} -o takeover_for_sub.txt; "
-                 f"if [ -s takeover_for_sub.txt ]; then subzy run --targets takeover_for_sub.txt {extra_flags} | tee sub_take_result.txt; fi")
+                 f"if [ -s takeover_for_sub.txt ]; then "
+                 f"subzy run --targets takeover_for_sub.txt {extra_flags} | grep -i 'VULNERABLE' > sub_take_result.txt; "
+                 f"fi")
 
         if write_to_master_report(master_vuln_file, domain, "POINT 4: Subdomain Takeover Result", "sub_take_result.txt"):
             print(f"{G}[+] Subdomain Takeover Vulnerability Found! Check: {master_vuln_file}{W}")
@@ -263,7 +273,7 @@ def process_wildcard(domain, extra_flags, root_dir, resume_indices=None):
         run_step("POINT 5.1: Mass Nmap Scan (All Live Subdomains)", domain,
                  f"if [ -s live_sub.txt ]; then "
                  f"sed -E 's#https?://##' live_sub.txt | cut -d/ -f1 | sort -u > clean_live_sub.txt; "
-                 f"nmap -iL clean_live_sub.txt -sV --top-ports 100 --open -T4 -oN mass_nmap_subdomains.txt > /dev/null 2>&1; "
+                 f"nmap -Pn -n -sV --top-ports 100 --open -T4 -iL clean_live_sub.txt -oN mass_nmap_subdomains.txt > /dev/null 2>&1; "
                  f"fi")
 
     else:
