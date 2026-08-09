@@ -16,7 +16,7 @@ cd ~/Downloads
 ​**2. Install required reconnaissance tools:**
 **Note : If a tool is not installed this way, install it manually.**
 ```bash
-sudo apt update --fix-missing -y && sudo apt install golang -y && sudo apt install python3 -y && sudo apt install git -y && sudo apt install python3-pip -y && sudo apt install curl -y && sudo apt install pv -y && sudo apt install jq -y && sudo apt install traceroute -y && sudo apt install nmap -y && sudo apt install nuclei -y && sudo apt install httpx-toolkit -y && sudo apt install assetfinder -y && sudo apt install subfinder -y && sudo apt install dnsx -y && GOSUMDB=off go install github.com/projectdiscovery/katana/cmd/katana@latest && GOSUMDB=off go install github.com/tomnomnom/waybackurls@latest && GOSUMDB=off go install github.com/Brosck/mantra@latest && echo 'export PATH=$PATH:$HOME/go/bin' >> ~/.bashrc && source ~/.bashrc
+sudo apt update --fix-missing -y && sudo apt install golang -y && sudo apt install python3 -y && sudo apt install git -y && sudo apt install python3-pip -y && sudo apt install curl -y && sudo apt install pv -y && sudo apt install jq -y && sudo apt install traceroute -y && sudo apt install nmap -y && sudo apt install nuclei -y && sudo apt install httpx-toolkit -y && sudo apt install assetfinder -y && sudo apt install subfinder -y && sudo apt install dnsx -y && GOSUMDB=off go install github.com/projectdiscovery/katana/cmd/katana@latest && GOSUMDB=off go install github.com/tomnomnom/waybackurls@latest && GOSUMDB=off go install github.com/Brosck/mantra@latest && sudo apt upgrade -y && echo 'export PATH=$PATH:$HOME/go/bin' >> ~/.bashrc && source ~/.bashrc
 ```
 ​**3. Clone the core NawabHunter-Ultimate repository:**
 ```bash
