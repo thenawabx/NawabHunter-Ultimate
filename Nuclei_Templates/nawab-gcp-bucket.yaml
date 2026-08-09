@@ -1,0 +1,28 @@
+id: THENAWABX_GCP_BUCKET
+info:
+  name: 🪣 Nawab-GCP-Bucket-Hunter 🪣
+  author: thenawabx
+  severity: high
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/.env"
+      - "{{BaseURL}}/config.js"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: regex
+        part: body
+        regex:
+          - "https://storage\\.googleapis\\.com/[a-z0-9-_]+"
+
+    extractors:
+      - type: regex
+        part: body
+        regex:
+          - "https://storage\\.googleapis\\.com/[a-z0-9-_]+"

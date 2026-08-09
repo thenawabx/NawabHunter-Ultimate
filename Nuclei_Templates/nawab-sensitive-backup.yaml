@@ -1,0 +1,26 @@
+id: THENAWABX_SENSITIVE_BACKUP
+info:
+  name: 📦 Nawab-Backup-Files-Hunter 📦
+  author: thenawabx
+  severity: high
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/backup.zip"
+      - "{{BaseURL}}/database.sql"
+      - "{{BaseURL}}/site.bak"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        part: body
+        words:
+          - "PK"
+          - "CREATE TABLE"
+          - "INSERT INTO"
+        condition: or

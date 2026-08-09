@@ -1,0 +1,35 @@
+id: THENAWABX_CONFIG_EXPOSURE
+info:
+  name: 🛡️ Nawab-Config-Exposure 🛡️
+  author: thenawabx
+  severity: high
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/.env"
+      - "{{BaseURL}}/config.json"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        part: body
+        words:
+          - "DB_PASSWORD="
+          - "DB_DATABASE="
+          - "APP_KEY="
+        condition: or
+
+      - type: word
+        part: body
+        negative: true
+        words:
+          - "YOUR_PASSWORD"
+          - "EXAMPLE_DB"
+          - "secret_here"
+          - "placeholder"
+        condition: or

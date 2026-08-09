@@ -1,0 +1,36 @@
+id: THENAWABX_FIREBASE_LEAK
+info:
+  name: 🔥 Nawab-Firebase-Leak-Hunter 🔥
+  author: thenawabx
+  severity: high
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/.env"
+      - "{{BaseURL}}/config.js"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: regex
+        part: body
+        regex:
+          - "https://[a-z0-9-]+\\.firebaseio\\.com"
+
+      - type: word
+        part: body
+        negative: true
+        words:
+          - "your-app-default-rtdb"
+          - "example.firebaseio.com"
+        condition: or
+
+    extractors:
+      - type: regex
+        part: body
+        regex:
+          - "https://[a-z0-9-]+\\.firebaseio\\.com"

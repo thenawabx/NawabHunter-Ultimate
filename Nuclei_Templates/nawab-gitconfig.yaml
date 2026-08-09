@@ -1,0 +1,31 @@
+id: THENAWABX_GIT_EXPOSURE
+info:
+  name: 📂 Nawab-Git-Exposure-Hunter 📂
+  author: thenawabx
+  severity: high
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/.git/config"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        part: body
+        words:
+          - "[core]"
+          - "[remote \"origin\"]"
+        condition: and
+
+      - type: word
+        part: body
+        negative: true
+        words:
+          - "Not Found"
+          - "Access Denied"
+        condition: or

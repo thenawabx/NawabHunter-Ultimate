@@ -1,0 +1,24 @@
+id: THENAWABX_PHPINFO_PAGE
+info:
+  name: 🐘 Nawab-PHPInfo-Hunter 🐘
+  author: thenawabx
+  severity: medium
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/phpinfo.php"
+      - "{{BaseURL}}/info.php"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        part: body
+        words:
+          - "<title>phpinfo()</title>"
+          - "PHP Version"
+        condition: and

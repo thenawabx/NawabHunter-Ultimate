@@ -1,0 +1,31 @@
+id: THENAWABX_DB_CONNECTION
+info:
+  name: 🗄️ Nawab-DB-Connection-Hunter 🗄️
+  author: thenawabx
+  severity: critical
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/.env"
+      - "{{BaseURL}}/appsettings.json"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: regex
+        part: body
+        regex:
+          - "mysql://[a-zA-Z0-9_]+:[a-zA-Z0-9_]+@[a-z0-9.-]+:[0-9]+"
+          - "postgres://[a-zA-Z0-9_]+:[a-zA-Z0-9_]+@[a-z0-9.-]+:[0-9]+"
+        condition: or
+
+    extractors:
+      - type: regex
+        part: body
+        regex:
+          - "mysql://[a-zA-Z0-9_]+:[a-zA-Z0-9_]+@[a-z0-9.-]+:[0-9]+"
+          - "postgres://[a-zA-Z0-9_]+:[a-zA-Z0-9_]+@[a-z0-9.-]+:[0-9]+"
