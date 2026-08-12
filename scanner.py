@@ -71,7 +71,7 @@ def banner():
     print(f"#   ██║ ╚████║██║  ██║╚███╔███╔╝██║  ██║██████╔╝             #")
     print(f"#   ╚═╝  ╚═══╝╚═╝  ╚═╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═════╝              #")
     print(f"#                                                            #")
-    print(f"#           {Y}NAWAB HUNTER ULTIMATE v0.6.3{M}                     #")
+    print(f"#           {Y}NAWAB HUNTER ULTIMATE v0.0.0{M}                     #")
     print(f"#             {C}MODE: ADVANCED RECON & INTEL{M}                   #")
     print(f"##############################################################{W}\n")
     print(f"{G}{B}          --- Welcome to 'thenawabx' world! ---{W}")
