@@ -4158,7 +4158,6 @@ function renderCards(cardsToRender) {
                 </div>
                 <div>${(finding.screenshots || []).map((screenshot, screenshotIndex) => `<span class="screenshot-item"><img class="screenshot-preview" src="${escapeHtml(screenshot)}" alt="Finding screenshot ${screenshotIndex + 1}" onclick="openScreenshot('${item.id}', ${screenshotIndex})"><button class="screenshot-remove" type="button" onclick="removeScreenshot('${item.id}', ${screenshotIndex})">Remove</button></span>`).join('')}</div>
             </div>
-            <div class="filter-label">Step to Reproduce:</div>
             <textarea class="custom-note" placeholder="Write the target-specific reproduction note here..." oninput="saveStepToReproduce('${item.id}', this.value)">${escapeHtml(savedNote)}</textarea>
         `;
         container.appendChild(card);
